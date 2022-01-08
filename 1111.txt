@@ -1,0 +1,5 @@
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `role`, `parent`, `set_status_at`, `status`, `password`, `remember_token`, `created_at`, `updated_at`, `project_id`) VALUES (1, 'Super Admin', 'admin@demo.com', '2021-09-18 08:56:32', 0, -2, '2022-01-06 00:00:00', 1, '$2y$10$r2Hh5r2QPnBqB2CRSJsD7.6OXWyUh61ZcvsN6X4/.n6ZyukOjDX6K', 'ZG08pQXQHK0J3bytok2QGX1YJW2y1XyLL7jaVW2Cf6I6gODMDcV2SCLitc4L', '2021-09-18 08:56:32', '2022-01-06 00:48:00', 0);
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `role`, `parent`, `set_status_at`, `status`, `password`, `remember_token`, `created_at`, `updated_at`, `project_id`) VALUES (23, 'MISUKA', 'MISUKA@gmail.com', NULL, 2, 0, '2022-01-06 03:29:43', 2, '$2y$10$mFi3pIqWIp1a7mBMrpZTbu46r/ENcW3WuKKMODegEL0/ylRaNqfze', NULL, '2022-01-05 23:41:13', '2022-01-06 03:29:43', 1);
+
+
+php artisan schedule:work
