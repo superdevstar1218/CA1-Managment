@@ -2,4 +2,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `role`, `parent
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `role`, `parent`, `set_status_at`, `status`, `password`, `remember_token`, `created_at`, `updated_at`, `project_id`) VALUES (23, 'MISUKA', 'MISUKA@gmail.com', NULL, 2, 0, '2022-01-06 03:29:43', 2, '$2y$10$mFi3pIqWIp1a7mBMrpZTbu46r/ENcW3WuKKMODegEL0/ylRaNqfze', NULL, '2022-01-05 23:41:13', '2022-01-06 03:29:43', 1);
 
 
+
+
+hello
 php artisan schedule:work
