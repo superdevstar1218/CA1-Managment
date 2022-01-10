@@ -60,12 +60,11 @@ class MyStatusController extends Controller
         // At the first , find current last registry and update it.
         $registry = Registry::where("start" , "=" , $user->set_status_at)->get()->first() ;
 
-
         if(isset($registry)){
-            if ( ( strtotime(Carbon::now()) - strtotime($registry->end) ) / 60 < 15){
+            if ( abs( strtotime(Carbon::now()) - strtotime($user->set_status_at) ) / 60 < 15){
                 return response()->json([
                     "result" => false ,
-                    "error" => "You can change status after about ".round (( 15 - ( strtotime(Carbon::now()) - strtotime($registry->end) ) / 60 ) , 2)." minutes."
+                    "error" => "You can change status after about ".round (15 - ( abs( strtotime(Carbon::now()) - strtotime($user->set_status_at) ) / 60 ) , 2)." minutes."
                 ]);
             }
             $registry->end = $this->formatDateTime() ;
@@ -88,7 +87,8 @@ class MyStatusController extends Controller
         $registry = new Registry ;
 
         $registry->start = $user->set_status_at ;
-        $registry->end = date ( "Y-m-d H:i:s" , strtotime($user->set_status_at) + 60*15);
+        $registry->end = date ( "Y-m-d H:i:s" , strtotime($user->set_status_at) + 60*15) ;
+//        date ( "Y-m-d H:i:s" , strtotime($user->set_status_at) + 60*15)
         $registry->user_id = Auth::id() ;
         $registry->category_id = $data['category_id'] ;
         $registry->comment = $data['comment'] ;

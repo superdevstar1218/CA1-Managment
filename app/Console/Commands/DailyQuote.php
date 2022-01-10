@@ -43,36 +43,47 @@ class DailyQuote extends Command
     {
         date_default_timezone_set("Asia/Tokyo");
 
+//        Registry::where("id" , "=" , "138")->delete();
+
         $current_minutes = date("i") ;
 
-        if( $current_minutes % 15 != 0) return Command::SUCCESS ;
+        if( intVal($current_minutes) % 15 != 0) return Command::SUCCESS ;
 
-        $current_datetime = date("Y-m-d H") + ":" + $current_minutes + ":00" ;
+        $current_datetime = date("Y-m-d H").":".$current_minutes.":00" ;
 
         $users = User::all() ;
 
         foreach($users as $user){
-            $initial = new \DateTime( $user->set_status_at ) ;
+            $initial = new \DateTime( $user['set_status_at'] ) ;
             $current = new \DateTime( $current_datetime );
 
             if( $initial->format("Y-m-d") == $current->format("Y-m-d")){
 
-                $registry = Registry::where("user_id" , "=" , $user['id'])->where("start" , "=" , $initial)->get()->first() ;
+//                        Registry::where("id" , "=" , "139")->delete();
 
-                $registry->end = $current ;
+                $registry = Registry::where("user_id" , "=" , $user['id'])->where("start" , "=" , $user->set_status_at)->get()->first() ;
 
-                $registry->save() ;
+                if(isset($registry))  {
+                    $registry->end = $current_datetime ;
+                    $registry->save() ;
+                }
             } else {
-                $registry = Registry::where("user_id" , "=" , $user->id )->where("start" , "=" , $initial)->get()->first() ;
+                $registry = Registry::where("user_id" , "=" , $user->id )->where("start" , "=" , $user->set_status_at)->get()->first() ;
 
-                $registry->end = date("Y-m-d 00:00:00") ;
+                if(isset($registry)){
+                    $registry->end = date("Y-m-d 00:00:00") ;
+                    $registry->save() ;
 
-                $registry->save() ;
+                }
+
+                $user->set_status_at =  date("Y-m-d 00:00:00") ;
+
+                $user->save() ;
 
                 $new_registry = new Registry ;
 
                 $new_registry->start = date("Y-m-d 00:00:00") ;
-                $new_registry->end = $current ;
+                $new_registry->end = $current_datetime ;
                 $new_registry->category_id = $user->status ;
                 $new_registry->user_id = $user->id ;
 

@@ -25,7 +25,7 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    private function formatDateTime() {
+    public function formatDateTime() {
         $current_minutes = intVal( date("i") ) ;
 
         if(  $current_minutes < 15 && $current_minutes > 0 ) {
@@ -82,7 +82,8 @@ class UserController extends Controller
         $registry->user_id = $user['id'] ;
         $registry->category_id = 1 ;
         $registry->start = $this->formatDateTime() ;
-        $registry->end = $this->formatDateTime() ;
+        $registry->end = date ( "Y-m-d H:i:s" , strtotime($this->formatDateTime()) + 60*15) ;
+
 
         $registry->save();
 

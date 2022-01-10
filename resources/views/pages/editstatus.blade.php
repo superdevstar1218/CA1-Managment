@@ -98,26 +98,11 @@
                 selectable: true,
                 select: function(arg) {
 
-                    // let today = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}) ;
-                    //
-                    // const d = new Date(today) ;
-                    // const e = new Date(arg.end.toLocaleString()) ;
-                    //
-                    // const diff = d.getTime() - e.getTime() ;
-                    //
-                    // console.log(diff) ;
-
                     if( arg.jsEvent.toElement.className != "fc-highlight"){
                         $("#canInsert").val('0') ;
                     } else {
                         $("#canInsert").val('1') ;
                     }
-
-                    // if(){
-                    //     $("#canInsert").val('0') ;
-                    // } else {
-                    //     $("#canInsert").val('1') ;
-                    // }
 
                     $("#start").val(arg.start) ;
                     $("#end").val(arg.end) ;
@@ -216,7 +201,7 @@
                 // if current start date is equal with user 's created date
                 if( datetime_start.getTime() == new Date( new String("{{$user_created_at}}").substring(0 , 10) + " 00:00:00" ).getTime() ) {
                     datetime_start = new Date("{{$user_created_at}}")  ;
-                    console.log("1");
+                    // console.log("1");
                 }
 
                 // if current end date is equal with current date
@@ -226,7 +211,7 @@
 
                 if( new Date( $("#date_end").val() + " 12:00:00" ).getTime() == new Date( today + ' 12:00:00').getTime()){
                     datetime_end = new Date( "{{$last_dateTime}}" ) ;
-                    console.log("2");
+                    // console.log("2");
                 }
 
                 let periodTime = datetime_end.getTime() - datetime_start.getTime() ;
@@ -242,8 +227,8 @@
                     }
                 }
 
-                console.log(periodTime) ;
-                console.log(totalTime) ;
+                // console.log(periodTime) ;
+                // console.log(totalTime) ;
 
                 if(periodTime != totalTime) {
                     return true ;

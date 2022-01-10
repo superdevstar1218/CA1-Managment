@@ -41,7 +41,7 @@ class StatusController extends Controller
         $last_date =   $request->post('end_date') ;
 
         $first_date = date($first_date." 00:00:00") ;
-        $last_date = date('Y-m-d 00:00:00' , strtoitme($last_date) + 60*60*24 ) ;
+        $last_date = date('Y-m-d 00:00:00' , strtotime($last_date) + 60*60*24 ) ;
 
         $user = User::find($id) ;
 
