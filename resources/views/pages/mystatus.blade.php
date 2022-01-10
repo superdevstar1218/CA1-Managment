@@ -70,48 +70,54 @@
 
 @endsection
 @push('js')
-  <script>
-    $(".save-data").click(function(event){
-      event.preventDefault();
-      let before_status = {{$user->status}}
-      let b_project = {{$user->project_id}}
-      let status = $("#selectUserStatus").val();
-      let project = $("#selectProject").val();
+    <script>
+        $(".save-data").click(function(event){
+            event.preventDefault();
+            {{--let before_status = {{$user->status}}--}}
+            {{--let b_project = {{$user->project_id}}--}}
+            {{--let status = $("#selectUserStatus").val();--}}
+            {{--let project = $("#selectProject").val();--}}
 
-      // if(before_status == status && b_project == project) {
-      if(before_status == status) {
-        $('.success').text('You already in this status');
-        return;
-      }
-      $('.success').hide();
+            {{--// if(before_status == status && b_project == project) {--}}
+            {{--if(before_status == status) {--}}
+            {{--  $('.success').text('You already in this status');--}}
+            {{--  return;--}}
+            {{--}--}}
+            {{--$('.success').hide();--}}
 
-      let comment = $("#comment").val();
-      let _token   = $('meta[name="csrf-token"]').attr('content');
+            let comment = $("#comment").val() ;
+            var status = $("#selectUserStatus").val() ;
 
-      $.ajax({
-        url: "/mystatus",
-        type:"POST",
-        data:{
-          status: status,
-          project_id: project,
-          comment: comment,
-          _token: _token
-        },
-        success:function(response){
-          console.log(response);
-          if(response) {
-            if(response.result){
-              $('.success').show();
-              $('.success').text(response.success);
-              $('.error').hide();
-            } else {
-              $('.error').text(response.errors);
-              $('.success').hide();
-            }
-          }
-        },
-       });
-  });
-  </script>
+            $.ajax({
+                url: "{{url('save_status')}}",
+                method:"post",
+                headers : {
+                    "X-CSRF-TOKEN" : $('meta[name="csrf-token"]').attr('content')
+                } ,
+                data:{
+                    category_id: status,
+                    user_id : "{{$user->id}}" ,
+                    comment: comment,
+                    // project_id: project,
+                },
+                success: function(resp) {
+                    console.log(resp);
+
+                    if(resp.result){
+                      $('.success').show();
+                      $('.success').text(resp.success);
+                      // $('.error').hide();
+                    } else {
+                        $('.success').text(resp.error);
+                        $('.success').show();
+                    }
+
+                    setTimeout(function () {
+                        $(".success").hide();
+                    } , 5000);
+                }
+            })
+        })
+    </script>
 @endpush
 

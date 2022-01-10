@@ -50,7 +50,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //subadmin mystatus
     Route::get('mystatus', ['as' => 'mystatus.index', 'uses' => 'App\Http\Controllers\MyStatusController@index']);
-    Route::post('mystatus', ['as' => 'mystatus.store', 'uses' => 'App\Http\Controllers\MyStatusController@store']);
+    Route::post('save_status', 'App\Http\Controllers\MyStatusController@save_status');
 
     //subadmin mylogs
     Route::get('mylogs', ['as' => 'mylogs.index', 'uses' => 'App\Http\Controllers\MyLogsController@index']);

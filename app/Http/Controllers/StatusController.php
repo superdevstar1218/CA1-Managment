@@ -41,10 +41,11 @@ class StatusController extends Controller
         $last_date =   $request->post('end_date') ;
 
         $first_date = date($first_date." 00:00:00") ;
-        $last_date = date($last_date." 23:59:59") ;
+        $last_date = date('Y-m-d 00:00:00' , strtoitme($last_date) + 60*60*24 ) ;
+
+        $user = User::find($id) ;
 
         $registries = Registry::whereBetween('start' , [ $first_date , $last_date ] )->where('user_id' , "=" , $id)->get() ;
-
 
         return Datatables::of($registries)
             ->addColumn('status', function ($row) {
@@ -55,13 +56,8 @@ class StatusController extends Controller
                 return $row->category->comment ;
             })
             ->addColumn('endStr' , function($row){
-                $endDate = new \DateTime($row->end) ;
 
-                if($endDate->format("Y-m-d H:i") == date("Y-m-d H:i")) {
-                    return "current";
-                } else {
-                    return $row->end ;
-                }
+                return $row->end ;
             })
             ->rawColumns(['status' , 'comment' , 'endStr'])
             ->make(true);
@@ -73,7 +69,13 @@ class StatusController extends Controller
         $last_date =   $request->post('date_end') ;
         $id = $request->post('user-id') ;
 
+        $user = User::find($id) ;
+
         $limited_date = date('Y-m-d' , strtotime($request->post('date_end')) + 60*60*24 ) ;
+
+        $registry = Registry::where("user_id" , "=" , $id)->where('start' , '=' , $user->set_status_at)->get()->first() ;
+
+//        var_dump( Auth::user()->set_status_at);
 
         $registries = Registry::where('user_id' , "=" , $id)->whereBetween('start' , [ date($first_date." 00:00:00") , date($last_date." 23:59:59") ] )->get() ;
 
@@ -83,7 +85,10 @@ class StatusController extends Controller
 
         $data['date_start'] = $first_date ;
         $data['date_end'] = $last_date ;
+
+        $data['user_created_at'] = $user->created_at ;
         $data['limited_date'] = $limited_date ;
+        $data['last_dateTime'] = $registry->end ;
 
         $data['registries'] = $registries ;
         $data['user_id'] = $id ;
@@ -145,19 +150,19 @@ class StatusController extends Controller
         $timestamp2 = strtotime($date_end) ;
         $min = Registry::where('user_id' , "=" ,  $user_id)->orderBy('start')->first();
 
-        if($min->start > $timestamp1) 
+        if($min->start > $timestamp1)
             $timestamp1 = $min->start;
 
         $totalMinutes = abs($timestamp2 - $timestamp1)/(60.0) ;
 
         $registries = Registry::where('user_id' , "=" ,  $user_id)->whereBetween('start' , [ $date_start , $date_end ])->get() ;
-        
+
 
         foreach($registries as $registry) {
             $timestamp01 = strtotime($registry->start) ;
             $timestamp02 = strtotime($registry->end) ;
 
-            if($min->start > $timestamp01) 
+            if($min->start > $timestamp01)
             $timestamp01 = $min->start;
 
             $diffMinutes = abs($timestamp02 - $timestamp01) / (60.0) ;

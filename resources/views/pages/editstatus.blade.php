@@ -91,19 +91,23 @@
                     start : $("#date_start").val() ,
                     end : "{{$limited_date}}" ,
                 },
+                selectOverlap : function(event) {
+
+                },
                 dayCount : 4,
                 selectable: true,
                 select: function(arg) {
-                    var today = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}) ;
 
-                    const d = new Date(today) ;
-                    const e = new Date(arg.end.toLocaleString()) ;
+                    // let today = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}) ;
+                    //
+                    // const d = new Date(today) ;
+                    // const e = new Date(arg.end.toLocaleString()) ;
+                    //
+                    // const diff = d.getTime() - e.getTime() ;
+                    //
+                    // console.log(diff) ;
 
-                    const diff = d.getTime() - e.getTime() ;
-
-                    console.log(diff) ;
-
-                    if(diff < 0 || arg.jsEvent.toElement.className != "fc-highlight"){
+                    if( arg.jsEvent.toElement.className != "fc-highlight"){
                         $("#canInsert").val('0') ;
                     } else {
                         $("#canInsert").val('1') ;
@@ -165,16 +169,7 @@
 
                     if(currentEventAPI.endStr === eventAPI.startStr){
                         if(currentEventAPI.title === eventAPI.title){
-                            let tmpEventAPI = {
-                                id  : currentEventAPI.id ,
-                                title : currentEventAPI.title ,
-                                start : currentEventAPI.start ,
-                                startStr : currentEventAPI.startStr ,
-                                endStr : eventAPI.endStr ,
-                                end : eventAPI.end ,
-                                color : eventAPI.backgroundColor ,
-                                overlap : false
-                            }
+                            v
 
                             eventAPI.remove() ;
                             currentEventAPI.remove() ;
@@ -213,6 +208,123 @@
                 }
             }
 
+
+            function isEmptyStatus() {
+                let datetime_start = new Date( $("#date_start").val() + " 00:00:00" ) ;
+                let datetime_end = new Date(new Date( $("#date_end").val() + " 00:00:00" ).getTime() + 24*60*60*1000 ) ;
+
+                // if current start date is equal with user 's created date
+                if( datetime_start.getTime() == new Date( new String("{{$user_created_at}}").substring(0 , 10) + " 00:00:00" ).getTime() ) {
+                    datetime_start = new Date("{{$user_created_at}}")  ;
+                    console.log("1");
+                }
+
+                // if current end date is equal with current date
+                // last datetime is user 's last registry datetime.
+
+                let today = new Date().toLocaleDateString("en-US", {timeZone: "Asia/Tokyo"}) ;
+
+                if( new Date( $("#date_end").val() + " 12:00:00" ).getTime() == new Date( today + ' 12:00:00').getTime()){
+                    datetime_end = new Date( "{{$last_dateTime}}" ) ;
+                    console.log("2");
+                }
+
+                let periodTime = datetime_end.getTime() - datetime_start.getTime() ;
+
+                let totalTime = 0 ;
+
+                for(  let i = 0 ; i < calendar.getEvents().length ; i++){
+                    let startDate = calendar.getEvents()[i]['start'] ;
+                    let endDate = calendar.getEvents()[i]['end'] ;
+
+                    if(endDate.getTime() <= new Date("{{$last_dateTime}}").getTime()){
+                        totalTime += endDate.getTime() - startDate.getTime() ;
+                    }
+                }
+
+                console.log(periodTime) ;
+                console.log(totalTime) ;
+
+                if(periodTime != totalTime) {
+                    return true ;
+                }
+                return false ;
+            }
+            function isValidStatus(){
+                let previousIDArray = [] ;
+                for(  let i = 0 ; i < calendar.getEvents().length ; i++){
+                    var startDate = calendar.getEvents()[i]['start'] ;
+
+                    if(startDate.getTime() < new Date("{{$user_created_at}}").getTime()){
+                        previousIDArray.push(calendar.getEvents()[i]['id']) ;
+                    }
+                }
+
+                if(previousIDArray.length != 0) {
+                    previousIDArray.map(function(element){
+                        let event = calendar.getEventById(element) ;
+
+                        if(event.end.getTime() > new Date("{{$user_created_at}}").getTime()){
+                            let tmpEventAPI = {
+                                id  : event.id ,
+                                title : event.title ,
+                                start : event.start ,
+                                end : event.end ,
+                                color : event.backgroundColor ,
+                                overlap : false
+                            }
+
+                            tmpEventAPI.start = new Date("{{$user_created_at}}");
+
+                            calendar.getEventById(element).remove() ;
+                            calendar.addEvent(tmpEventAPI) ;
+
+                        } else calendar.getEventById(element).remove() ;
+                    })
+                    return  false ;
+                }
+                return true ;
+            }
+
+            function isOverflowStatus(){
+
+                let overIDArray = [] ;
+
+                for(  let i = 0 ; i < calendar.getEvents().length ; i++){
+                    var endDate = calendar.getEvents()[i]['end'] ;
+
+                    if( endDate.getTime() >  new Date("{{$last_dateTime}}").getTime() ){
+                        overIDArray.push(calendar.getEvents()[i].id) ;
+                    }
+                }
+
+                if(overIDArray.length != 0) {
+
+                    overIDArray.map( function(element){
+                        let event = calendar.getEventById(element) ;
+
+                        if(event.start.getTime() < new Date("{{$last_dateTime}}").getTime()){
+
+                            let tmpEventAPI = {
+                                id  : event.id ,
+                                title : event.title ,
+                                start : event.start ,
+                                end : event.end ,
+                                color : event.backgroundColor ,
+                                overlap : false
+                            }
+
+                            tmpEventAPI.end = new Date("{{$last_dateTime}}");
+
+                            calendar.getEventById(element).remove() ;
+                            calendar.addEvent(tmpEventAPI) ;
+                        } else calendar.getEventById(element).remove() ;
+                    })
+                    return true ;
+                }
+                return false ;
+            }
+
             $('.fc-scroller-liquid-absolute').on( "mousewheel" , function(event){
                 if (event.originalEvent.wheelDelta >= 0)
                     this.scrollTop = this.scrollTop - event.originalEvent.wheelDelta ;
@@ -220,105 +332,65 @@
                     this.scrollTop = this.scrollTop - event.originalEvent.wheelDelta ;
             });
 
+
             $("#btn_save").on('click' , function(){
 
-                var sum_time = 0 ;
-                var diff_time = 0 ;
-
-                for( i = 0 ; i < calendar.getEvents().length ; i++){
-                    var startDate = calendar.getEvents()[i]['start'] ;
-                    var endDate = calendar.getEvents()[i]['end'] ;
-
-                    var d = endDate.getTime() - startDate.getTime() ;
-
-                    sum_time += d;
+                if(!isValidStatus()){
+                    return alert("{{$user_name}}" + " registered at " + "{{$user_created_at}}" + ". so you can't edit status before " + "{{$user_created_at}}") ;
                 }
 
-                var today = new Date().toLocaleString("en-US", {timeZone: "Asia/Tokyo"}) ;
-                const todayTime = new Date(today).getTime() ;
-
-                today = today.split("/") ;
-                today = today[2].split(",")[0] + "-" + ( Number(today[0]) < 10 ? "0" + today[0] : today[0]) + "-" + ( Number(today[1]) < 10 ? "0" + today[1] : today[1]) ;
-
-                const e = new Date(today + " 00:00:00").getTime() ;
-
-                const diff = todayTime - e ;
-
-                if( $("#date_start").val() == $("#date_end").val() ) {
-                    if( today == $("#date_end").val()) {
-                        diff_time = diff ;
-                    } else {
-                        diff_time = 24*60*60*1000 ;
-                        // const f = new Date($("#date_start").val() + " 00:00:00").getTime() ;
-                        //
-                        // diff_time = diff_time + diff + ( e - f );
-                    }
-                } else {
-                    if( today == $("#date_end").val()) {
-                        const f = new Date($("#date_end").val() + " 00:00:00").getTime() ;
-                        const g = new Date($("#date_start").val() + " 00:00:00").getTime() ;
-
-                        diff_time = diff_time + diff + ( f - g );
-                    } else {
-                        diff_time = 24*60*60*1000 ;
-
-                        const f = new Date($("#date_end").val() + " 00:00:00").getTime() ;
-                        const g = new Date($("#date_start").val() + " 00:00:00").getTime() ;
-
-                        diff_time = diff_time + ( f - g );
-                        // const f = new Date($("#date_start").val() + " 00:00:00").getTime() ;
-                        //
-                        // diff_time = diff_time + diff + ( e - f );
-                    }
+                if(isOverflowStatus()){
+                    return alert("You can't edit after " + "{{$last_dateTime}}") ;
                 }
 
-                console.log(diff_time) ;
-
-                if(diff_time != sum_time){
-                    return alert("You can't save data.") ;
+                if(isEmptyStatus()){
+                    return alert("exist empty status") ;
                 }
 
-                var eventAPI = [] ;
-                var i = 0 ;
 
-                for( i = 0 ; i < calendar.getEvents().length ; i++){
-                    var startDate = calendar.getEvents()[i]['startStr'] ;
-                    var endDate = calendar.getEvents()[i]['endStr'] ;
-                    eventAPI.push({
-                      title : calendar.getEvents()[i]['title'] ,
-                      startStr : startDate ,
-                      endStr : endDate,
-                    })
-                }
 
-                console.log(eventAPI) ;
 
-                if(eventAPI.length == 0) {
-                    return alert("No Datas!!!") ;
-                }
 
-                $.ajax({
-                    url : '{{route('status.save_registries')}}' ,
-                    method : 'post' ,
-                    headers : {
-                        'X-CSRF-TOKEN' : $('meta[name=csrf-token]').attr('content')
-                    },
-                    data : {
-                        eventApi: eventAPI ,
-                        first_date : $("#date_start").val(),
-                        last_date : $("#date_end").val() ,
-                        user_id : "{{$user_id}}"
-                    },
-                    success : function(resp){
-                        alert(resp.status) ;
-                    },
-                    complete : {
+                {{--let eventAPI = [] ;--}}
 
-                    },
-                    error : function (e) {
-                        console.log(e);
-                    }
-                });
+                {{--for( let i = 0 ; i < calendar.getEvents().length ; i++){--}}
+                {{--    let startDate = calendar.getEvents()[i]['startStr'] ;--}}
+                {{--    let endDate = calendar.getEvents()[i]['endStr'] ;--}}
+                {{--    eventAPI.push({--}}
+                {{--      title : calendar.getEvents()[i]['title'] ,--}}
+                {{--      startStr : startDate ,--}}
+                {{--      endStr : endDate,--}}
+                {{--    })--}}
+                {{--}--}}
+
+                {{--console.log(eventAPI) ;--}}
+
+                {{--if(eventAPI.length == 0) {--}}
+                {{--    return alert("No Datas!!!") ;--}}
+                {{--}--}}
+
+                {{--$.ajax({--}}
+                {{--    url : '{{route('status.save_registries')}}' ,--}}
+                {{--    method : 'post' ,--}}
+                {{--    headers : {--}}
+                {{--        'X-CSRF-TOKEN' : $('meta[name=csrf-token]').attr('content')--}}
+                {{--    },--}}
+                {{--    data : {--}}
+                {{--        eventApi: eventAPI ,--}}
+                {{--        first_date : $("#date_start").val(),--}}
+                {{--        last_date : $("#date_end").val() ,--}}
+                {{--        user_id : "{{$user_id}}"--}}
+                {{--    },--}}
+                {{--    success : function(resp){--}}
+                {{--        alert(resp.status) ;--}}
+                {{--    },--}}
+                {{--    complete : {--}}
+
+                {{--    },--}}
+                {{--    error : function (e) {--}}
+                {{--        console.log(e);--}}
+                {{--    }--}}
+                {{--});--}}
             });
 
             $("#btn_insert").on('click' , async function () {

@@ -25,6 +25,17 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+
+        date_default_timezone_set("Asia/tokyo") ;
+
+//        if( intVal( date("i") ) < 15 ) sleep(15 - intVal(date('i'))) ;
+//
+//        if( intVal(date("i") ) < 30 && intVal(date("i")) > 15) sleep( 30 - intVal(date("i"))) ;
+//
+//        if( intVal(date("i") ) > 30 && intVal(date("i")) < 45 ) sleep( 45 - intVal(date("i"))) ;
+//
+//        if( intVal(date("i")) > 45) sleep( 60 - intVal(date("i"))) ;
+
         $schedule->command('quote:daily')
             ->everyMinute();
     }

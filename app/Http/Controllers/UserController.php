@@ -25,6 +25,24 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
+    private function formatDateTime() {
+        $current_minutes = intVal( date("i") ) ;
+
+        if(  $current_minutes < 15 && $current_minutes > 0 ) {
+            return date("Y-m-d H:00:00") ;
+        }
+        if( $current_minutes > 15 && $current_minutes < 30 ){
+            return date("Y-m-d H:15:00") ;
+        }
+        if( $current_minutes > 30 && $current_minutes < 45 ){
+            return date("Y-m-d H:30:00") ;
+        }
+        if( $current_minutes > 45  ){
+            return date("Y-m-d H:45:00") ;
+        }
+        return date("Y-m-d H") + ":" + $current_minutes + ":00" ;
+    }
+
     public function store(Request $data)
     {
         $validator = Validator::make($data->all(), [
@@ -54,7 +72,8 @@ class UserController extends Controller
         $user->parent = ($role == 1 ? -1 : 0) ;
         $user->project_id = 1 ;
         $user->status = 1 ;
-        $user->set_status_at = Carbon::now() ;
+        $user->set_status_at = $this->formatDateTime() ;
+        $user->created_at = $this->formatDateTime() ;
 
         $user->save() ;
 
@@ -62,8 +81,8 @@ class UserController extends Controller
 
         $registry->user_id = $user['id'] ;
         $registry->category_id = 1 ;
-        $registry->start = date("Y-m-d H:i:s") ;
-        $registry->end = date("Y-m-d H:i:s") ;
+        $registry->start = $this->formatDateTime() ;
+        $registry->end = $this->formatDateTime() ;
 
         $registry->save();
 

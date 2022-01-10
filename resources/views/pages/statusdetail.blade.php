@@ -19,9 +19,9 @@
                                         @csrf
                                         <input type="hidden" id="user_id" name="user-id" value="<?php echo $user->id ?>" />
                                         &nbsp;
-                                        <input type="date" id="date_start" name="date_start" value="{{date('Y-m-d' , time() - 60*60*24 )}}" max="{{date('Y-m-d' , time() - 60*60*24 )}}"/>
+                                        <input type="date" id="date_start" name="date_start" value="{{substr($user->created_at , 0 , 10)}}" max="{{date('Y-m-d' )}}" min="{{substr($user->created_at , 0 , 10)}}"/>
                                         &nbsp;
-                                        <input type="date" id="date_end" name="date_end" value="{{date('Y-m-d')}}" max="{{date('Y-m-d')}}"/>
+                                        <input type="date" id="date_end" name="date_end" value="{{date('Y-m-d')}}" max="{{date('Y-m-d')}}" min="{{substr($user->created_at , 0 , 10)}}"/>
                                         &nbsp;
                                         <input type="submit" class="btn btn-sm btn-primary" id="btn_edit" value="Edit" />
                                     </div>
@@ -148,6 +148,7 @@
             drawPieChart();
         });
         $('#date_start').datepicker().on("input click" , function(e) {
+            $("#date_end").attr('min' , $("#date_start").val());
             $("#ui-datepicker-div").hide() ;
             table.ajax.reload();
         });
