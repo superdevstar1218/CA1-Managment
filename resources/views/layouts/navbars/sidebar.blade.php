@@ -53,6 +53,18 @@
             <p>{{ __('Projects') }}</p>
         </a>
       </li>
+      <li class="nav-item{{ $activePage == 'moneylogs' ? ' active' : '' }}">
+        <a class="nav-link" href="{{ route('moneylogs.index')  }}">
+          <i class="material-icons">dashboard</i>
+            <p>{{ __('Money Logs') }}</p>
+        </a>
+      </li>
+      <li class="nav-item{{ $activePage == 'customers' ? ' active' : '' }}">
+        <a class="nav-link" href="{{ route('customers.index')  }}">
+          <i class="material-icons">dashboard</i>
+            <p>{{ __('Customers') }}</p>
+        </a>
+      </li>
     </ul>
   </div>
 </div>

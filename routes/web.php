@@ -66,6 +66,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('category', ['as' => 'categories.store', 'uses' => 'App\Http\Controllers\CategoryController@store']);
     Route::put('category/{id}', ['as' => 'categories.update', 'uses' => 'App\Http\Controllers\CategoryController@update']);
 
+    //admin moneylog
+    Route::get('moneylog', ['as' => 'moneylogs.index', 'uses' => 'App\Http\Controllers\MoneyLogController@index']);
+    
+    //admin customer
+    Route::get('customer', ['as' => 'customers.index', 'uses' => 'App\Http\Controllers\CustomerController@index']);
+
     //admin projects
     Route::get('projects', ['as' => 'projects.index', 'uses' => 'App\Http\Controllers\ProjectController@index']);
     Route::post('projects', ['as' => 'projects.store', 'uses' => 'App\Http\Controllers\ProjectController@store']);
