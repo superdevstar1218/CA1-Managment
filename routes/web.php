@@ -71,6 +71,8 @@ Route::group(['middleware' => 'auth'], function () {
     
     //admin customer
     Route::get('customer', ['as' => 'customers.index', 'uses' => 'App\Http\Controllers\CustomerController@index']);
+    Route::post('customer', ['as' => 'customers.store', 'uses' => 'App\Http\Controllers\CustomerController@store']);
+    Route::put('customer/{id}', ['as' => 'customers.update', 'uses' => 'App\Http\Controllers\CustomerController@update']);
 
     //admin projects
     Route::get('projects', ['as' => 'projects.index', 'uses' => 'App\Http\Controllers\ProjectController@index']);

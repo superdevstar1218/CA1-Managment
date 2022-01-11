@@ -32,12 +32,28 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\data  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $data)
     {
         //
+        // $validator = Validator::make($data->all(), [
+        //     'email' => ['required', 'string', 'max:255', 'unique:customers'],
+        // ]);
+        // if ($validator->fails()) {
+        //     return response()->json(array('result' => false, 'errors' => $validator->getMessageBag()->toArray()));
+        // }
+
+        $new_customer = new Customer ;
+
+        $new_customer->firstname = $data['firstname'] ;
+        $new_customer->lastname = $data['lastname'] ;
+        $new_customer->email = $data['email'] ;
+
+        $new_customer->save();
+
+        return response()->json(array('result' => true, 'success' => 'Customer Created'));
     }
 
     /**
@@ -65,13 +81,23 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         //
+        $data = $request->all();
+        $customer = Customer::find($id);
+
+        $customer->firstname = $data['firstname'];
+        $customer->lastname = $data['lastname'];
+        $customer->email = $data['email'] ;
+
+        $customer->save();
+
+        return response()->json(array('result' => true, 'success' => 'customer Updated'));
     }
 
     /**
