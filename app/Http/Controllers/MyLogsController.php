@@ -19,7 +19,7 @@ class MyLogsController extends Controller
         $categories = Category::all();
         $user = Auth::user() ;
 
-        return view('pages.mylogs1', compact('projects', 'categories' , 'user' ));
+        return view('pages.mylogs', compact('projects', 'categories' , 'user' ));
     }
 
     public function getData(Request $request)
