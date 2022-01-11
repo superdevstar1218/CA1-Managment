@@ -49,7 +49,7 @@ class MyStatusController extends Controller
         $user = User::find($data['user_id']);
 
         if(isset($user)) {
-            if($user->status == $data['category_id']) {
+            if($user->status == $data['category_id'] && $user->project_id == $data['project_id']) {
                 return response()->json([
                     "result" => false ,
                     'error' => "You've already in this status."
@@ -91,6 +91,7 @@ class MyStatusController extends Controller
 //        date ( "Y-m-d H:i:s" , strtotime($user->set_status_at) + 60*15)
         $registry->user_id = Auth::id() ;
         $registry->category_id = $data['category_id'] ;
+        $registry->project_id = $data['project_id'] ;
         $registry->comment = $data['comment'] ;
 
         $registry->save() ;

@@ -79,7 +79,7 @@ class StatusController extends Controller
                 }
                 return $row->end ;
             })
-            ->rawColumns(['status' , 'project' ,'comment' , 'endStr'])
+            ->rawColumns(['status' , 'project' , 'endStr' , 'comment'])
             ->make(true);
     }
 

@@ -91,6 +91,7 @@
                     var barColors = [] ;
                     var yValues = [] ;
 
+                    $("#analysis_info").html("") ;
 
                     @foreach($categories as $category)
                         xValues.push("{{$category->name}}") ;
@@ -166,10 +167,12 @@
         });
         $('#date_start').datepicker().on("input click" , function(e) {
             $("#date_end").attr('min' , $("#date_start").val());
+            $("#analysis_info").html("... Loading") ;
             $("#ui-datepicker-div").hide() ;
             table.ajax.reload();
         });
         $('#date_end').datepicker().on("input click" , function(e) {
+            $("#analysis_info").html("... Loading") ;
             $("#ui-datepicker-div").hide() ;
             table.ajax.reload();
         });

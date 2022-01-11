@@ -17,7 +17,9 @@ class MyLogsController extends Controller
     {
         $projects = Project::all();
         $categories = Category::all();
-        return view('pages.mylogs', compact('projects', 'categories'));
+        $user = Auth::user() ;
+
+        return view('pages.mylogs1', compact('projects', 'categories' , 'user' ));
     }
 
     public function getData(Request $request)
@@ -25,7 +27,7 @@ class MyLogsController extends Controller
 
         // $projects = $_POST['projects'];
         // $categories = $_POST['categories'];
-        
+
         $check_condition = 0;
 
         $first_date =   $request->post('start_date')  ;

@@ -86,7 +86,8 @@
             {{--$('.success').hide();--}}
 
             let comment = $("#comment").val() ;
-            var status = $("#selectUserStatus").val() ;
+            let status = $("#selectUserStatus").val() ;
+            let project = $("#selectProject").val() ;
 
             $.ajax({
                 url: "{{url('save_status')}}",
@@ -98,7 +99,7 @@
                     category_id: status,
                     user_id : "{{$user->id}}" ,
                     comment: comment,
-                    // project_id: project,
+                    project_id: project,
                 },
                 success: function(resp) {
                     console.log(resp);

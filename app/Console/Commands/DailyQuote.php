@@ -85,6 +85,7 @@ class DailyQuote extends Command
                 $new_registry->start = date("Y-m-d 00:00:00") ;
                 $new_registry->end = $current_datetime ;
                 $new_registry->category_id = $user->status ;
+                $new_registry->project_id = $user->project_id ;
                 $new_registry->user_id = $user->id ;
 
                 $new_registry->save() ;
