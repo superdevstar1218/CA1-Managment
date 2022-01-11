@@ -172,6 +172,7 @@
             table.ajax.reload();
         });
         $('#date_end').datepicker().on("input click" , function(e) {
+            $("#date_start").attr('max' , $("#date_end").val());
             $("#analysis_info").html("... Loading") ;
             $("#ui-datepicker-div").hide() ;
             table.ajax.reload();
