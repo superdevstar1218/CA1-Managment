@@ -27,7 +27,14 @@
                                     </div>
                                 </form>
                             </div>
-                            <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                            <div class="row">
+                                <div class="col-6">
+                                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                                </div>
+                                <div class="col-6 d-flex flex-column justify-content-center" id="analysis_info">
+
+                                </div>
+                            </div>
                             <table id="empTable" class="display dataTable">
                                 <thead>
                                     <tr>
@@ -39,6 +46,9 @@
                                         </th>
                                         <th>
                                             End time
+                                        </th>
+                                        <th>
+                                            Project
                                         </th>
                                         <th>
                                             Comment
@@ -81,6 +91,7 @@
                     var barColors = [] ;
                     var yValues = [] ;
 
+
                     @foreach($categories as $category)
                         xValues.push("{{$category->name}}") ;
                         barColors.push("{{$category->bgcolor}}") ;
@@ -89,6 +100,11 @@
                         } else {
                             yValues.push(resp.pieDatas["{{$category->id}}"]) ;
                         }
+
+                        $("#analysis_info").append('<div class="row">') ;
+                        $("#analysis_info").append('{{$category->name}}' + " : ") ;
+                        $("#analysis_info").append(resp.pieDatas["{{$category->id}}"] + " % ( " + ( resp.timeInfo["{{$category->id}}"] / 3600 ) + " hours )") ;
+                        $("#analysis_info").append('</div>') ;
                     @endforeach
 
                     new Chart("myChart", {
@@ -130,6 +146,7 @@
                 { data: 'status', name: 'status', searchable: true},
                 { data: 'start', name: 'start', searchable: true },
                 { data: 'endStr', name: 'endStr', searchable: true },
+                { data: 'project', name: 'project', searchable: true },
                 { data: 'comment', name: 'comment', searchable: true },
             ],
             'initComplete': function () {

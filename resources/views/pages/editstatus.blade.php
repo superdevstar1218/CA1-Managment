@@ -43,22 +43,46 @@
                     <input type="hidden" id="user_id" name="user_id" value="{{$user_id}}" />
                     <input type="hidden" id="cur_date" name="cur_date" />
 
-                        @foreach($categories as $category)
-                            <input type="hidden" id="{{$category->name}}" value="{{$category->bgcolor}}" />
-                        @endforeach
+{{--                        @foreach($categories as $category)--}}
+{{--                            <input type="hidden" id="{{$category->name}}" value="{{$category->bgcolor}}" />--}}
+{{--                        @endforeach--}}
 
-                    <div class="bmd-form-group">
+
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Category</span>
+                                <span class="input-group-text">
+                                    Category
+                                </span>
                             </div>
-                            <select name="category_id" class="form-control" >
+                            <select name="category_id" class="form-control" id="category_id">
                                 @foreach($categories as $category)
-                                    <option id="{{$category->id}}" value="{{$category->name}}">{{$category->name}}</option>
+                                    <option id="{{$category->id}}" value="{{$category->bgcolor}}">{{$category->name}}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    Project
+                                </span>
+                            </div>
+                            <select name="project_id" class="form-control" id="project_id">
+                                @foreach($projects as $project)
+                                    <option id="{{$project->id}}" value="{{$project->name}}">{{$project->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    Comment
+                                </span>
+                            </div>
+                            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                        </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-primary" id="btn_insert">Insert</button>
@@ -94,6 +118,7 @@
                 selectOverlap : function(event) {
 
                 },
+                eventStartEditable : true ,
                 dayCount : 4,
                 selectable: true,
                 select: function(arg) {
@@ -126,19 +151,21 @@
                 },
                 editable: true,
                 dayMaxEvents: true,
-
                 events: [
-                          @foreach($registries as $registry)
-                              {
-                                id  : "{{$loop->index}}" ,
-                                title : '{{$registry->category->name}}' ,
-                                {{--url : '{{$registry->category_id}}' ,--}}
-                                start : '{{str_replace(" " , "T" , $registry->start)."-08:00"}}' ,
-                                end : '{{str_replace(" " , "T" , $registry->end)."-08:00"}}' ,
-                                color : '{{$registry->category->bgcolor}}' ,
-                                overlap : false
-                              },
-                          @endforeach
+                    @foreach($registries as $registry)
+                    {
+                        id  : "{{$loop->index}}" ,
+                        title : '{{$registry->category->name}}' + " : " +  "{{$registry->project->name}}" + " - " + "{{$registry->comment}}",
+                        {{--url : '{{$registry->category_id}}' ,--}}
+                        start : '{{str_replace(" " , "T" , $registry->start)."-08:00"}}' ,
+                        end : '{{str_replace(" " , "T" , $registry->end)."-08:00"}}' ,
+                        color : '{{$registry->category->bgcolor}}' ,
+                        overlap : false ,
+                        category_id : "{{$registry->category_id}}" ,
+                        project_id : "{{$registry->project_id}}" ,
+                        comment : "{{$registry->comment}}"
+                    },
+                    @endforeach
                 ]
             });
 
@@ -147,14 +174,27 @@
             console.log(calendar.getEvents());
 
             function trimEventAPI(id , canFinished) {
-                currentEventAPI = calendar.getEventById(id) ;
+                let currentEventAPI = calendar.getEventById(id) ;
 
                 for(let i = 0 ; i < calendar.getEvents().length ; i++){
-                    eventAPI = calendar.getEvents()[i] ;
+                    let eventAPI = calendar.getEvents()[i] ;
 
                     if(currentEventAPI.endStr === eventAPI.startStr){
-                        if(currentEventAPI.title === eventAPI.title){
-                            v
+                        if(currentEventAPI.title === eventAPI.title ){
+
+                            let tmpEventAPI = {
+                                id  : currentEventAPI.id ,
+                                title : currentEventAPI.title ,
+                                start : currentEventAPI.start ,
+                                startStr : currentEventAPI.startStr ,
+                                endStr : eventAPI.endStr ,
+                                end : eventAPI.end ,
+                                color : eventAPI.backgroundColor ,
+                                overlap : false ,
+                                category_id : currentEventAPI.extendedProps.category_id ,
+                                project_id : currentEventAPI.extendedProps.project_id ,
+                                comment : currentEventAPI.extendedProps.comment
+                            }
 
                             eventAPI.remove() ;
                             currentEventAPI.remove() ;
@@ -168,7 +208,7 @@
                     }
                     if(currentEventAPI.startStr === eventAPI.endStr){
 
-                        if(currentEventAPI.title === eventAPI.title) {
+                        if(currentEventAPI.title === eventAPI.title ) {
                             let tmpEventAPI = {
                                 id  : currentEventAPI.id ,
                                 title : currentEventAPI.title ,
@@ -177,7 +217,10 @@
                                 end : currentEventAPI.end ,
                                 endStr : currentEventAPI.endStr ,
                                 color : eventAPI.backgroundColor ,
-                                overlap : false
+                                overlap : false ,
+                                category_id : currentEventAPI.extendedProps.category_id ,
+                                project_id : currentEventAPI.extendedProps.project_id ,
+                                comment : currentEventAPI.extendedProps.comment
                             }
 
                             eventAPI.remove() ;
@@ -249,6 +292,7 @@
                     previousIDArray.map(function(element){
                         let event = calendar.getEventById(element) ;
 
+                        //if end of event is inside of valid range
                         if(event.end.getTime() > new Date("{{$user_created_at}}").getTime()){
                             let tmpEventAPI = {
                                 id  : event.id ,
@@ -256,7 +300,10 @@
                                 start : event.start ,
                                 end : event.end ,
                                 color : event.backgroundColor ,
-                                overlap : false
+                                overlap : false,
+                                category_id : event.extendedProps.category_id ,
+                                project_id : event.extendedProps.project_id ,
+                                comment : event.extendedProps.comment
                             }
 
                             tmpEventAPI.start = new Date("{{$user_created_at}}");
@@ -288,6 +335,7 @@
                     overIDArray.map( function(element){
                         let event = calendar.getEventById(element) ;
 
+                        // if start of event is inside valid range.
                         if(event.start.getTime() < new Date("{{$last_dateTime}}").getTime()){
 
                             let tmpEventAPI = {
@@ -296,7 +344,10 @@
                                 start : event.start ,
                                 end : event.end ,
                                 color : event.backgroundColor ,
-                                overlap : false
+                                overlap : false ,
+                                category_id : event.extendedProps.category_id ,
+                                project_id : event.extendedProps.project_id ,
+                                comment : event.extendedProps.comment
                             }
 
                             tmpEventAPI.end = new Date("{{$last_dateTime}}");
@@ -318,6 +369,14 @@
             });
 
 
+            $("#category_id").on('change' , function (e) {
+                $('input[name=categoryId]').val(e.target.id) ;
+            });
+
+            $("#project_id").on('change' , function (e) {
+                $('input[name=projectId]').val(e.target.id) ;
+            });
+
             $("#btn_save").on('click' , function(){
 
                 if(!isValidStatus()){
@@ -332,50 +391,49 @@
                     return alert("exist empty status") ;
                 }
 
+                let eventAPI = [] ;
 
+                for( let i = 0 ; i < calendar.getEvents().length ; i++){
+                    let startDate = calendar.getEvents()[i]['startStr'] ;
+                    let endDate = calendar.getEvents()[i]['endStr'] ;
+                    eventAPI.push({
+                        title : calendar.getEvents()[i]['title'] ,
+                        project_id : calendar.getEvents()[i].extendedProps.project_id ,
+                        category_id: calendar.getEvents()[i].extendedProps.category_id ,
+                        comment: calendar.getEvents()[i].extendedProps.comment ,
+                        startStr : startDate ,
+                        endStr : endDate,
+                    })
+                }
 
+                console.log(eventAPI) ;
 
+                if(eventAPI.length == 0) {
+                    return alert("No Datas!!!") ;
+                }
 
-                {{--let eventAPI = [] ;--}}
+                $.ajax({
+                    url : '{{route('status.save_registries')}}' ,
+                    method : 'post' ,
+                    headers : {
+                        'X-CSRF-TOKEN' : $('meta[name=csrf-token]').attr('content')
+                    },
+                    data : {
+                        eventApi: eventAPI ,
+                        first_date : $("#date_start").val(),
+                        last_date : $("#date_end").val() ,
+                        user_id : "{{$user_id}}"
+                    },
+                    success : function(resp){
+                        alert(resp.status) ;
+                    },
+                    complete : {
 
-                {{--for( let i = 0 ; i < calendar.getEvents().length ; i++){--}}
-                {{--    let startDate = calendar.getEvents()[i]['startStr'] ;--}}
-                {{--    let endDate = calendar.getEvents()[i]['endStr'] ;--}}
-                {{--    eventAPI.push({--}}
-                {{--      title : calendar.getEvents()[i]['title'] ,--}}
-                {{--      startStr : startDate ,--}}
-                {{--      endStr : endDate,--}}
-                {{--    })--}}
-                {{--}--}}
-
-                {{--console.log(eventAPI) ;--}}
-
-                {{--if(eventAPI.length == 0) {--}}
-                {{--    return alert("No Datas!!!") ;--}}
-                {{--}--}}
-
-                {{--$.ajax({--}}
-                {{--    url : '{{route('status.save_registries')}}' ,--}}
-                {{--    method : 'post' ,--}}
-                {{--    headers : {--}}
-                {{--        'X-CSRF-TOKEN' : $('meta[name=csrf-token]').attr('content')--}}
-                {{--    },--}}
-                {{--    data : {--}}
-                {{--        eventApi: eventAPI ,--}}
-                {{--        first_date : $("#date_start").val(),--}}
-                {{--        last_date : $("#date_end").val() ,--}}
-                {{--        user_id : "{{$user_id}}"--}}
-                {{--    },--}}
-                {{--    success : function(resp){--}}
-                {{--        alert(resp.status) ;--}}
-                {{--    },--}}
-                {{--    complete : {--}}
-
-                {{--    },--}}
-                {{--    error : function (e) {--}}
-                {{--        console.log(e);--}}
-                {{--    }--}}
-                {{--});--}}
+                    },
+                    error : function (e) {
+                        console.log(e);
+                    }
+                });
             });
 
             $("#btn_insert").on('click' , async function () {
@@ -385,11 +443,14 @@
                 } else {
                     await calendar.addEvent({
                         id : maxID++ ,
-                        title : $('select[name=category_id]').val() ,
-                        color :  $( "#" + $("select[name=category_id]").val() ).val(),
+                        title : $('select[name=category_id] option:selected').text() + " : " + $('select[name=project_id]').val() + " - " + $("#comment").val(),
+                        color : $("select[name=category_id]").val(),
                         start :  new Date( $("#startStr").val() ),
                         end :  new Date( $("#endStr").val() ),
-                        overlap : false
+                        overlap : false ,
+                        category_id : Number ($('select[name=category_id]').prop('selectedIndex')) + 1 ,
+                        project_id : Number( $('select[name=project_id]').prop('selectedIndex') ) + 1 ,
+                        comment : $("#comment").val()
                     });
                     await trimEventAPI( maxID-1 , false) ;
 

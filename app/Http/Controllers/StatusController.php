@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Registry ;
-use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\Datatables\Datatables;
-use Carbon\Carbon;
+use App\Models\Project ;
 
 class StatusController extends Controller
 {
@@ -24,13 +23,31 @@ class StatusController extends Controller
         }
         return view('pages.status', compact('users'));
     }
+    private function formatDateTime() {
+        $current_minutes = intVal( date("i") ) ;
+
+        if(  $current_minutes < 15 && $current_minutes > 0 ) {
+            return date("Y-m-d H:00:00") ;
+        }
+        if( $current_minutes > 15 && $current_minutes < 30 ){
+            return date("Y-m-d H:15:00") ;
+        }
+        if( $current_minutes > 30 && $current_minutes < 45 ){
+            return date("Y-m-d H:30:00") ;
+        }
+        if( $current_minutes > 45  ){
+            return date("Y-m-d H:45:00") ;
+        }
+        return date("Y-m-d H") + ":" + $current_minutes + ":00" ;
+    }
 
     public function detail($id)
     {
         $user = User::findOrFail($id);
         $categories = Category::all() ;
+        $projects = Project::all() ;
 
-        return view('pages.statusdetail', compact('id', 'user' , 'categories'));
+        return view('pages.statusdetail', compact('id', 'user' , 'categories' , 'projects'));
     }
 
     public function userlogs(Request $request, $id)
@@ -41,25 +58,28 @@ class StatusController extends Controller
         $last_date =   $request->post('end_date') ;
 
         $first_date = date($first_date." 00:00:00") ;
-        $last_date = date('Y-m-d 00:00:00' , strtotime($last_date) + 60*60*24 ) ;
+        $last_date = date($last_date." 23:59:59") ;
 
         $user = User::find($id) ;
 
-        $registries = Registry::whereBetween('start' , [ $first_date , $last_date ] )->where('user_id' , "=" , $id)->get() ;
+        $registries = Registry::whereBetween('start' , [ $first_date , $last_date ] )->where('user_id' , "=" , $id)->orderBy('end' , 'asc')->get() ;
 
         return Datatables::of($registries)
             ->addColumn('status', function ($row) {
                 $category = $row->category->name ;
                 return $category;
             })
-            ->addColumn('comment' , function($row) {
-                return $row->category->comment ;
+            ->addColumn('project', function ($row) {
+                $project = $row->project->name ;
+                return $project;
             })
             ->addColumn('endStr' , function($row){
-
+                if($row->end == $this->formatDateTime()){
+                    return "Current" ;
+                }
                 return $row->end ;
             })
-            ->rawColumns(['status' , 'comment' , 'endStr'])
+            ->rawColumns(['status' , 'project' ,'comment' , 'endStr'])
             ->make(true);
     }
 
@@ -73,13 +93,14 @@ class StatusController extends Controller
 
         $limited_date = date('Y-m-d' , strtotime($request->post('date_end')) + 60*60*24 ) ;
 
-        $registry = Registry::where("user_id" , "=" , $id)->where('start' , '=' , $user->set_status_at)->get()->first() ;
+        $registry = Registry::where("user_id" , "=" , $id)->whereBetween('start' , [ date($first_date." 00:00:00") , date($last_date." 23:59:59") ] )->orderBy('end' , 'desc')->get()->first() ;
 
 //        var_dump( Auth::user()->set_status_at);
 
         $registries = Registry::where('user_id' , "=" , $id)->whereBetween('start' , [ date($first_date." 00:00:00") , date($last_date." 23:59:59") ] )->get() ;
 
         $categories = Category::all() ;
+        $projects = Project::all() ;
 
         $data = [] ;
 
@@ -94,6 +115,7 @@ class StatusController extends Controller
         $data['user_id'] = $id ;
         $data['user_name'] = User::find($id)->name ;
         $data['categories'] = $categories ;
+        $data['projects'] = $projects ;
 
         return view('pages.editstatus' , $data) ;
     }
@@ -107,7 +129,11 @@ class StatusController extends Controller
         $first_date = date($first_date." 00:00:00") ;
         $last_date = date($last_date." 23:59:59") ;
 
+        $user = User::find($request->post('user_id') );
 
+        $max_datetime = 0 ;
+
+//        var_dump($registries) ;
         Registry::whereBetween('start' , [ $first_date , $last_date ] )->delete() ;
 
         // // var_dump($registries) ;
@@ -118,10 +144,19 @@ class StatusController extends Controller
             $new_registry->user_id = $request->post('user_id') ;
             $new_registry->start = substr( str_replace( "UTC" , " " , $registry['startStr'] ) , 0 , -6 ) ;
             $new_registry->end = substr( str_replace( "UTC" , " " , $registry['endStr'] ) , 0 , -6 ) ;
-            $new_registry->category_id = Category::where('name' , '=' , $registry['title'])->get()->first()->id;
+            $new_registry->category_id = $registry["category_id"] ;
+            $new_registry->project_id = $registry["project_id"] ;
+            $new_registry->comment = $registry["comment"] ;
 
             $new_registry->save() ;
+
+            if ( $max_datetime < strtotime($new_registry->start) ){
+                $max_datetime = strtotime($new_registry->start) ;
+            }
         }
+
+        $user->set_status_at = date("Y-m-d H:i:s" , $max_datetime) ;
+        $user->save() ;
 
         return response()->json([
             "status" => "Save Successfully!"
@@ -141,46 +176,45 @@ class StatusController extends Controller
     public function analysis_registry(Request $request) {
 
         $registry_pie_chart_data = [] ;
+        $timeInfo = [] ;
 
         $date_start = $request->post('date_start') ;
         $date_end = $request->post('date_end') ;
         $user_id = $request->post('user_id') ;
 
-        $timestamp1 = strtotime($date_start) ;
-        $timestamp2 = strtotime($date_end) ;
-        $min = Registry::where('user_id' , "=" ,  $user_id)->orderBy('start')->first();
+        $registry = Registry::where("user_id" , "=" , $user_id)->whereBetween('start' , [ date($date_start." 00:00:00") , date($date_end." 23:59:59") ] )->orderBy('start' , 'desc')->get()->first() ;
 
-        if($min->start > $timestamp1)
-            $timestamp1 = $min->start;
+        $timestamp1 = strtotime($registry->end) ;
 
-        $totalMinutes = abs($timestamp2 - $timestamp1)/(60.0) ;
+        $registry = Registry::where("user_id" , "=" , $user_id)->whereBetween('start' , [ date($date_start." 00:00:00") , date($date_end." 23:59:59") ] )->orderBy('start' , 'asc')->get()->first() ;
 
-        $registries = Registry::where('user_id' , "=" ,  $user_id)->whereBetween('start' , [ $date_start , $date_end ])->get() ;
+        $timestamp2 = strtotime($registry->start) ;
 
+        $totalMinutes = abs($timestamp1 - $timestamp2) ;
+
+        $registries = Registry::where("user_id" , "=" , $user_id)->whereBetween('start' , [ date($date_start." 00:00:00") , date($date_end." 23:59:59") ] )->orderBy("start" , "asc")->get() ;
 
         foreach($registries as $registry) {
             $timestamp01 = strtotime($registry->start) ;
             $timestamp02 = strtotime($registry->end) ;
 
-            if($min->start > $timestamp01)
-            $timestamp01 = $min->start;
-
-            $diffMinutes = abs($timestamp02 - $timestamp01) / (60.0) ;
+            $diffMinutes = abs($timestamp02 - $timestamp01)  ;
 
             if(!isset($registry_pie_chart_data[$registry->category_id])){
                 $registry_pie_chart_data[$registry->category_id] = 0 ;
-
+                $timeInfo[$registry->category_id] = 0;
             }
             $registry_pie_chart_data[$registry->category_id] += $diffMinutes ;
+            $timeInfo[$registry->category_id] += $diffMinutes ;
         }
 
-
         foreach($registry_pie_chart_data as $key => $value) {
-            $registry_pie_chart_data[$key] = $value  * 100.0 / $totalMinutes ;
+            $registry_pie_chart_data[$key] = round( $value  * 100.0 / $totalMinutes , 2 ) ;
         }
 
         return response()->json([
-           'pieDatas' => $registry_pie_chart_data
+           'pieDatas' => $registry_pie_chart_data ,
+            'timeInfo' => $timeInfo ,
         ]);
     }
 }

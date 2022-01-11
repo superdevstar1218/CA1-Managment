@@ -10,4 +10,8 @@ class Project extends Model
     use HasFactory;
     protected $fillable = ['name', 'description', 'status'];
     public $timestamps = false;
+
+    public function registries(){
+        return $this->hasMany(Registry::class) ;
+    }
 }
