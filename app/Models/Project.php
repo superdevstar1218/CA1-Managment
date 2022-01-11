@@ -14,4 +14,8 @@ class Project extends Model
     public function registries(){
         return $this->hasMany(Registry::class) ;
     }
+    
+    public function moneylogs(){
+        return $this->hasMany(MoneyLog::class) ;
+    }
 }
