@@ -13,6 +13,16 @@ use App\Models\Project ;
 class StatusController extends Controller
 {
     //
+    private $max ;
+
+    public function setMax($max) {
+        $this->max = $max ;
+
+        return ;
+    }
+    public function getMax($max) {
+        return $this->max ;
+    }
     public function index()
     {
         $users = User::where('parent', '!=', -2)->get();
@@ -64,6 +74,10 @@ class StatusController extends Controller
 
         $registries = Registry::whereBetween('start' , [ $first_date , $last_date ] )->where('user_id' , "=" , $id)->orderBy('end' , 'asc')->get() ;
 
+        $registry = Registry::whereBetween('start' , [$first_date , $last_date ])->where('user_id' , "=" ,$id)->orderBy('end' , 'desc')->get()->first() ;
+
+        $this->setMax($registry->end) ;
+
         return Datatables::of($registries)
             ->addColumn('status', function ($row) {
                 $category = $row->category->name ;
@@ -74,7 +88,7 @@ class StatusController extends Controller
                 return $project;
             })
             ->addColumn('endStr' , function($row){
-                if($row->end == $this->formatDateTime()){
+                if($row->end == $this->getMax()){
                     return "Current" ;
                 }
                 return $row->end ;
