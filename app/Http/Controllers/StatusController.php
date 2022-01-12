@@ -20,7 +20,7 @@ class StatusController extends Controller
 
         return ;
     }
-    public function getMax($max) {
+    public function getMax() {
         return $this->max ;
     }
     public function index()
@@ -77,6 +77,8 @@ class StatusController extends Controller
         $registry = Registry::whereBetween('start' , [$first_date , $last_date ])->where('user_id' , "=" ,$id)->orderBy('end' , 'desc')->get()->first() ;
 
         $this->setMax($registry->end) ;
+
+//        var_dump($this->getMax());
 
         return Datatables::of($registries)
             ->addColumn('status', function ($row) {
