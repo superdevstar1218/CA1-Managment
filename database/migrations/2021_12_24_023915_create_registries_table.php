@@ -17,6 +17,8 @@ class CreateRegistriesTable extends Migration
             $table->id();
             $table->bigInteger('user_id') ;
             $table->bigInteger('category_id') ;
+            $table->bigInteger('project_id') ;
+            $table->text('comment') ;
             $table->datetime('start') ;
             $table->datetime('end') ;
             $table->timestamps();
