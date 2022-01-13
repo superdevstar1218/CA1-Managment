@@ -18,8 +18,8 @@ class CreateCustomersTable extends Migration
             $table->string('firstname');
             $table->string('lastname');
             $table->string('email')->unique();
-            $table->string('skype_address')->unique();
-            $table->date('birthday');
+            $table->string('skype_address')->nullable();
+            $table->date('birthday')->nullable();
             $table->string('country')->nullable();
             $table->string('city')->nullable();
             $table->string('street')->nullable();
