@@ -35,6 +35,12 @@
             <p>{{ __('My Logs') }}</p>
         </a>
       </li>
+        <li class="nav-item{{ $activePage == 'my-schedule' ? ' active' : '' }}">
+            <a class="nav-link" href="{{ route('myschedule.index')  }}">
+                <i class="material-icons">dashboard</i>
+                <p>{{ __('My Schedule') }}</p>
+            </a>
+        </li>
     </ul>
   </div>
 </div>
