@@ -20,7 +20,7 @@ class CreateMoneyLogsTable extends Migration
             $table->string('currency');
             $table->string('amount');
             $table->integer('project_id');
-            $table->string('amount');
+            $table->string('comment');
             $table->timestamps();
         });
     }
