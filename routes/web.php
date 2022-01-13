@@ -52,6 +52,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mystatus', ['as' => 'mystatus.index', 'uses' => 'App\Http\Controllers\MyStatusController@index']);
     Route::post('save_status', 'App\Http\Controllers\MyStatusController@save_status');
 
+    //subadmin myschedule
+    Route::get('myschedule', ['as' => 'myschedule.index', 'uses' => 'App\Http\Controllers\MyScheduleController@index']);
+    Route::post('myschedule', ['as' => 'myschedule.getData', 'uses' => 'App\Http\Controllers\MyScheduleController@getData']);
+    Route::post('myschedule/getOne', ['as' => 'myschedule.getOne', 'uses' => 'App\Http\Controllers\MyScheduleController@getOne']);
+    Route::post('myschedule/saveOne', ['as' => 'myschedule.saveOne', 'uses' => 'App\Http\Controllers\MyScheduleController@saveOne']);
+    Route::post('myschedule/deleteOne', ['as' => 'myschedule.deleteOne', 'uses' => 'App\Http\Controllers\MyScheduleController@deleteOne']);
+    Route::post('myschedule/addOne', ['as' => 'myschedule.addOne', 'uses' => 'App\Http\Controllers\MyScheduleController@addOne']);
+
     //subadmin mylogs
     Route::get('mylogs', ['as' => 'mylogs.index', 'uses' => 'App\Http\Controllers\MyLogsController@index']);
     Route::post('mylogs', ['as' => 'mylogs.getData', 'uses' => 'App\Http\Controllers\MyLogsController@getData']);
@@ -71,7 +79,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('moneylog', ['as' => 'moneylogs.store', 'uses' => 'App\Http\Controllers\MoneyLogController@store']);
     Route::put('moneylog/{id}', ['as' => 'moneylogs.update', 'uses' => 'App\Http\Controllers\MoneyLogController@update']);
     Route::post('moneylogdetail', ['as' => 'moneylogs.detail', 'uses' => 'App\Http\Controllers\MoneyLogController@getDetail']);
-    
+
     //admin customer
     Route::get('customer', ['as' => 'customers.index', 'uses' => 'App\Http\Controllers\CustomerController@index']);
     Route::post('customer', ['as' => 'customers.store', 'uses' => 'App\Http\Controllers\CustomerController@store']);
