@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div class="card">
                     <div class="card-header card-header-primary">
-                        <h4 class="card-title ">Customer Logs</h4>
+                        <h4 class="card-title ">Customers</h4>
                         <p class="card-customer"> Here you can manage customers</p>
                     </div>
                     <div class="card-body">
@@ -27,10 +27,7 @@
                                             ID
                                         </th>
                                         <th>
-                                            First Name
-                                        </th>
-                                        <th>
-                                            Last Name
+                                            Name
                                         </th>
                                         <th>
                                             Email
@@ -44,12 +41,14 @@
                                     @foreach ($customers as $customer)
                                         <tr>
                                             <td>{{$customer->id}}</td>
-                                            <td>{{$customer->firstname}}</td>
-                                            <td>{{$customer->lastname}}</td>
+                                            <td>{{$customer->firstname}} {{$customer->lastname}}</td>
                                             <td>{{$customer->email}}</td>
                                             <td class="td-actions text-right">
                                                 <a onclick="setedit({{$customer}})" data-toggle="modal" data-target="#EditCustomerModal" class="btn btn-primary" href="#" data-original-title="" title="">
                                                     Edit
+                                                </a>
+                                                <a class="btn btn-primary" href="customer/detail/{{$customer->id}}" >
+                                                    Detail
                                                 </a>
                                             </td>
                                         </tr>

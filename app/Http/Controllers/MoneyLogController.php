@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 use App\Models\MoneyLog;
 use App\Models\Customer;
-use App\Models\Currency;
 use App\Models\Project;
 use Yajra\Datatables\Datatables;
 
@@ -22,9 +21,8 @@ class MoneyLogController extends Controller
         //
         $moneylogs = MoneyLog::all();
         $projects = Project::all();
-        $currencies = Currency::all();
         $customers = Customer::all();
-        return view('pages.moneylogs', compact('moneylogs', 'projects', 'currencies', 'customers'));
+        return view('pages.moneylogs', compact('moneylogs', 'projects', 'customers'));
     }
 
     /**
@@ -50,9 +48,10 @@ class MoneyLogController extends Controller
 
         $new_moneylog->received_date = $data['received_date'] ;
         $new_moneylog->customer_id = $data['customer'] ;
-        $new_moneylog->currency_id = $data['currency'] ;
+        $new_moneylog->currency = $data['currency'] ;
         $new_moneylog->amount = $data['amount'] ;
         $new_moneylog->project_id = $data['project'] ;
+        $new_moneylog->comment = $data['comment'] ;
 
         $new_moneylog->save();
 
@@ -96,9 +95,10 @@ class MoneyLogController extends Controller
 
         $moneylog->received_date = $data['received_date'] ;
         $moneylog->customer_id = $data['customer'] ;
-        $moneylog->currency_id = $data['currency'] ;
+        $moneylog->currency = $data['currency'] ;
         $moneylog->amount = $data['amount'] ;
         $moneylog->project_id = $data['project'] ;
+        $moneylog->comment = $data['comment'] ;
 
         $moneylog->save();
 
@@ -121,20 +121,19 @@ class MoneyLogController extends Controller
 
         $first_date =   $request->post('start_date') ;
         $last_date =   $request->post('end_date') ;
+        $customers = $request->post('customers');
+        $projects = $request->post('projects');
 
         $first_date = date($first_date." 00:00:00") ;
         $last_date = date($last_date." 23:59:59") ;
 
-        $moneylogs = MoneyLog::whereBetween('received_date' , [ $first_date , $last_date ] )->orderBy('received_date' , 'asc')->get() ;
+        $moneylogs = MoneyLog::whereBetween('received_date' , [ $first_date , $last_date ] )
+                ->whereIn('project_id', $projects)->whereIn('customer_id', $customers)->orderBy('received_date' , 'asc')->get() ;
 
         return Datatables::of($moneylogs)
             ->addColumn('customer', function ($row) {
-                $customer = $row->customer->email ;
-                return $customer;
-            })
-            ->addColumn('currency', function ($row) {
-                $currency = $row->currency->name ;
-                return $currency;
+                $customer = $row->customer->firstname.' '.$row->customer->lastname ;
+                return '<a href="customer/detail/'.$row->customer_id.'">'.$customer.'</a>';
             })
             ->addColumn('project', function ($row) {
                 $project = $row->project->name ;
@@ -142,9 +141,9 @@ class MoneyLogController extends Controller
             })
             ->addColumn('actions' , function($row) {
                 $dates = explode('-', $row->received_date);
-                return '<a onclick="setedit('.$row->id.','.$row->customer_id.','.$row->currency_id.','.$row->amount.','.$row->project_id.','.$dates[0].','.$dates[1].','.$dates[2].')" data-toggle="modal" data-target="#EditMoneyLogModal" class="btn btn-primary btn-sm" style="color:#fff"> Edit </a>';
+                return '<a onclick="setedit('.$row->id.','.$row->customer_id.',\''.$row->currency.'\','.$row->amount.','.$row->project_id.',\''.$row->comment.'\','.$dates[0].','.$dates[1].','.$dates[2].')" data-toggle="modal" data-target="#EditMoneyLogModal" class="btn btn-primary btn-sm" style="color:#fff"> Edit </a>';
             })
-            ->rawColumns(['received_date' , 'customer' , 'currency' , 'project' , 'actions'])
+            ->rawColumns(['received_date' , 'customer' , 'project' , 'actions'])
             ->make(true);
     }
 }

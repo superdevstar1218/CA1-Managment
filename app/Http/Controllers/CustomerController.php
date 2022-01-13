@@ -100,6 +100,12 @@ class CustomerController extends Controller
         return response()->json(array('result' => true, 'success' => 'customer Updated'));
     }
 
+    public function detail(Request $request, $id)
+    {
+        //
+        $customer = Customer::find($id);
+        return view('pages.customerdetail', compact('customer'));
+    }
     /**
      * Remove the specified resource from storage.
      *
