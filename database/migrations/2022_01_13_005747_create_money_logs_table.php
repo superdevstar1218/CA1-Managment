@@ -18,7 +18,9 @@ class CreateMoneyLogsTable extends Migration
             $table->date('received_date');
             $table->integer('customer_id');
             $table->string('currency');
-            $table->string('amount');
+            $table->string('amount')->default('0');
+            $table->string('fee')->default('0');
+            $table->string('real_pay')->default('0');
             $table->integer('project_id');
             $table->string('comment');
             $table->timestamps();

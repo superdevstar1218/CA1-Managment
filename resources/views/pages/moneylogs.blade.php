@@ -47,6 +47,30 @@
                                 <button id="project-toggle" class="btn btn-primary btn-sm">Select All</button>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <canvas id="moneylogChart" style="width:100%;"></canvas>
+                            </div>
+                            <div class="col-6 d-flex flex-column justify-content-center" id="moneylog_analysis">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <canvas id="customerChart" style="width:100%;"></canvas>
+                            </div>
+                            <div class="col-6 d-flex flex-column justify-content-center" id="customer_analysis">
+
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-top: 30px">
+                            <div class="col-6">
+                                <canvas id="projectChart" style="width:100%;"></canvas>
+                            </div>
+                            <div class="col-6 d-flex flex-column justify-content-center" id="project_analysis">
+
+                            </div>
+                        </div>
                         <table class="display dataTable" id= "empTable" style="width:100%">
                             <thead class=" text-primary">
                                 <tr>
@@ -64,6 +88,12 @@
                                     </th>
                                     <th>
                                         Amount
+                                    </th>
+                                    <th>
+                                        Fee
+                                    </th>
+                                    <th>
+                                        Real Pay(USD)
                                     </th>
                                     <th>
                                         Project
@@ -149,6 +179,30 @@
                                             </span>
                                         </div>
                                         <input type="text" name="amount" class="form-control" placeholder="{{ __('Amount...') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                Fee&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </span>
+                                        </div>
+                                        <input type="text" name="fee" class="form-control" placeholder="{{ __('Amount...') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                Real Pay(USD)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </span>
+                                        </div>
+                                        <input type="text" name="real_pay" class="form-control" placeholder="{{ __('Amount...') }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -267,6 +321,30 @@
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
+                                                Fee&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </span>
+                                        </div>
+                                        <input type="text" name="edit_fee" id="edit_fee" class="form-control" placeholder="{{ __('Fee...') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                Real Pay&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </span>
+                                        </div>
+                                        <input type="text" name="edit_real_pay" id="edit_real_pay" class="form-control" placeholder="{{ __('Real Pay...') }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="bmd-form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
                                                 Project&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             </span>
                                         </div>
@@ -304,8 +382,10 @@
 @endsection
 
 @push('js')
-    <script>
+    <script src="{{ asset('material') }}/js/plugins/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
+    <script>
         var projects = [];
         var customers = [];
         var customers_all = [];
@@ -317,12 +397,14 @@
             projects_all.push({{ $project->id }})
         @endforeach
 
-        function setedit(id, customer, currency, amount, project, comment, year, month, day) {
+        function setedit(id, customer, currency, amount, fee, real_pay, project, comment, year, month, day) {
             $("#edit_id").val(id) ;
             $("#edit_customer").val(customer) ;
             $("#edit_currency").val(currency) ;
             $("#edit_project").val(project) ;
             $('#edit_amount').val(amount) ;
+            $('#edit_fee').val(fee) ;
+            $('#edit_real_pay').val(real_pay) ;
             $('#edit_comment').val(comment) ;
             
             let received_date = new Date(year, month - 1, day);
@@ -360,6 +442,14 @@
                 $btn.text("Deselect All");
             }
         }
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
         $(document).ready(function() {
             $('#project').multiselect({
                 onChange: function(element, checked) {
@@ -393,6 +483,8 @@
                 let customer = $("#edit_customer").val();
                 let currency = $("#edit_currency").val();
                 let amount = $("#edit_amount").val();
+                let fee = $("#edit_fee").val();
+                let real_pay = $("#edit_real_pay").val();
                 let project = $("#edit_project").val();
                 let received_date = $("#edit_received_date").val();
                 let comment = $("#edit_comment").val();
@@ -404,6 +496,8 @@
                         customer: customer,
                         currency: currency,
                         amount : amount ,
+                        fee : fee,
+                        real_pay : real_pay,
                         project : project,
                         received_date: received_date,
                         comment : comment,
@@ -429,6 +523,8 @@
                 let customer = $("select[name=customer]").val();
                 let currency = $("input[name=currency]").val();
                 let amount = $("input[name=amount]").val();
+                let fee = $("input[name=fee]").val();
+                let real_pay = $("input[name=real_pay]").val();
                 let project = $("select[name=project]").val();
                 let received_date = $("input[name=received_date]").val();
                 let comment = $("input[name=comment]").val();
@@ -440,6 +536,8 @@
                         customer: customer,
                         currency: currency,
                         amount : amount ,
+                        fee : fee,
+                        real_pay : real_pay,
                         project : project,
                         received_date: received_date,
                         comment : comment,
@@ -464,6 +562,169 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            function drawMoneyLogPieChart () {
+                $.ajax({
+                    method : "POST" ,
+                    url : "{{url('moneylog/analysis')}}" ,
+                    data : {
+                        date_start : $("#date_start").val(),
+                        date_end : $("#date_end").val()
+                    
+                    },
+                    success : function (resp) {
+                        var xValues = [];
+                        var barColors = [] ;
+                        var yValues = [] ;
+
+                        console.log(resp);
+
+                        
+                        $("#moneylog_analysis").html('') ;
+
+
+                        for(let i = 0; i < resp.analysis_moneylogs.length ; i ++) {
+                            xValues.push(resp.analysis_moneylogs[i].received_date) ;
+                            yValues.push(resp.analysis_moneylogs[i].real_pay) ;
+                        }
+
+                        new Chart("moneylogChart", {
+                            type: "line",
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    borderColor: '#ff0000',
+                                    backgroundColor: '#ffffff',
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    fontSize: 20,
+                                    text: "Money Log analysis with Date"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            drawMoneyLogPieChart();
+
+            function drawCustomerPieChart () {
+                $.ajax({
+                    method : "POST" ,
+                    url : "{{url('moneylog/customer_analysis')}}" ,
+                    data : {
+                    },
+                    success : function (resp) {
+                        var xValues = [];
+                        var barColors = [] ;
+                        var yValues = [] ;
+
+                        console.log(resp);
+
+                        
+                        $("#customer_analysis").html('') ;
+
+
+                        @foreach($customers as $customer)
+                            xValues.push("{{$customer->firstname}} {{$customer->lastname}}") ;
+                            barColors.push(getRandomColor()) ;
+                            if(resp.pieDatas["{{$customer->id}}"] === "undefined"){
+                                yValues.push(0) ;
+                            } else {
+                                yValues.push(resp.pieDatas["{{$customer->id}}"]) ;
+                            }
+
+                            $("#customer_analysis").append('<div class="row">') ;
+                            $("#customer_analysis").append('{{$customer->firstname}} {{$customer->lastname}}' + " : ") ;
+                            $("#customer_analysis").append(( typeof resp.pieDatas["{{$customer->id}}"] === "undefined" ? "0" : resp.pieDatas["{{$customer->id}}"] ) + " % ( " + ( ( typeof resp.customer_pay["{{$customer->id}}"] == 'undefined' ? 0 : resp.customer_pay["{{$customer->id}}"] ) ) + " USD )") ;
+                            $("#customer_analysis").append('</div>') ;
+                        @endforeach
+
+                        new Chart("customerChart", {
+                            type: "pie",
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    backgroundColor: barColors,
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    fontSize: 20,
+                                    text: "Money Log analysis with customers"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            drawCustomerPieChart();
+
+            
+            function drawProjectPieChart () {
+                $.ajax({
+                    method : "POST" ,
+                    url : "{{url('moneylog/project_analysis')}}" ,
+                    data : {
+                    },
+                    success : function (resp) {
+                        var xValues = [];
+                        var barColors = [] ;
+                        var yValues = [] ;
+
+                        console.log(resp);
+
+                        
+                        $("#project_analysis").html('') ;
+
+
+                        @foreach($projects as $project)
+                            @if($project->name != 'No Project.') 
+                                xValues.push("{{$project->name}}") ;
+                                barColors.push(getRandomColor()) ;
+                                if(resp.pieDatas["{{$project->id}}"] === "undefined"){
+                                    yValues.push(0) ;
+                                } else {
+                                    yValues.push(resp.pieDatas["{{$project->id}}"]) ;
+                                }
+
+                                $("#project_analysis").append('<div class="row">') ;
+                                $("#project_analysis").append('{{$project->name}}' + " : ") ;
+                                $("#project_analysis").append(( typeof resp.pieDatas["{{$project->id}}"] === "undefined" ? "0" : resp.pieDatas["{{$project->id}}"] ) + " % ( " + ( ( typeof resp.project_pay["{{$project->id}}"] == 'undefined' ? 0 : resp.project_pay["{{$project->id}}"] ) ) + " USD )") ;
+                                $("#project_analysis").append('</div>') ;
+                            @endif
+                        @endforeach
+
+                        new Chart("projectChart", {
+                            type: "pie",
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    backgroundColor: barColors,
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    fontSize: 20,
+                                    text: "Money Log analysis with projects"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            drawProjectPieChart();
+
             var table =  $('#empTable').DataTable({
                 'processing': true,
                 'serverSide': true,
@@ -485,6 +746,8 @@
                     { data: 'customer', name: 'customer', searchable: true },
                     { data: 'currency', name: 'currency', searchable: true },
                     { data: 'amount', name: 'amount', searchable: true },
+                    { data: 'fee', name: 'fee', searchable: true },
+                    { data: 'real_pay', name: 'real_pay', searchable: true },
                     { data: 'project', name: 'project', searchable: true },
                     { data: 'comment', name: 'comment', searchable: true },
                     { data: 'actions', name: 'actions', searchable: true, class: 'td-actions text-right' },
@@ -505,7 +768,6 @@
                 $("#date_end").attr('min' , $("#date_start").val());
                 if($("#date_end").val() < $("#date_start").val())
                     $("#date_end").val($("#date_start").val());
-                $("#analysis_info").html('... Loading') ;
                 $("#ui-datepicker-div").hide() ;
                 table.ajax.reload();
             });
@@ -513,7 +775,6 @@
                 $('#date_start').attr('max', $('#date_end').val());
                 if($('#date_start').val() > $('#date_end').val())
                     $('#date_start').val($('#date_end').val());
-                $("#analysis_info").html('... Loading') ;
                 $("#ui-datepicker-div").hide() ;
                 table.ajax.reload();
             });
