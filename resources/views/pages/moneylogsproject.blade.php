@@ -38,14 +38,6 @@
                                 <button id="customer-toggle" class="btn btn-primary btn-sm">Select All</button>
                             </div>
                             <div class="col-sm-12 col-md-6">
-                                <a class="nav-link" href="{{ route('moneylogs.customers')  }}">
-                                    <button id="money-log-customers" class="btn btn-primary btn-sm">Customers</button>    
-                                </a>
-                                <a class="nav-link" href="{{ route('moneylogs.projects')  }}">
-                                    <button id="money-log-projects" class="btn btn-primary btn-sm">Projects</button>    
-                                </a>
-                            </div>
-                            <div class="col-sm-12 col-md-6">
                                 <label for="start">&nbsp;Project:</label>
                                 <select id="project" multiple="multiple">
                                     @foreach ($projects as $project)
@@ -55,11 +47,11 @@
                                 <button id="project-toggle" class="btn btn-primary btn-sm">Select All</button>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <canvas id="moneylogChart" style="width:100%;"></canvas>
+                        <div class="row" style = "padding-top: 30px">
+                            <div class="col-6">
+                                <canvas id="projectChart" style="width:100%;"></canvas>
                             </div>
-                            <div class="col-6 d-flex flex-column justify-content-center" id="moneylog_analysis">
+                            <div class="col-6 d-flex flex-column justify-content-center" id="project_analysis">
 
                             </div>
                         </div>
@@ -468,10 +460,6 @@
                 table.ajax.reload();
             });
 
-            $("#money-log-customers").click(function(e) {
-                e.preventDefault();
-                window.location.href = "/moneylog/customer";
-            });
             $(".edit-data").click(function(event){
                 event.preventDefault();
 
@@ -607,6 +595,119 @@
             }
 
             drawMoneyLogPieChart();
+
+            function drawCustomerPieChart () {
+                $.ajax({
+                    method : "POST" ,
+                    url : "{{url('moneylog/customer_analysis')}}" ,
+                    data : {
+                    },
+                    success : function (resp) {
+                        var xValues = [];
+                        var barColors = [] ;
+                        var yValues = [] ;
+
+                        console.log(resp);
+
+                        
+                        $("#customer_analysis").html('') ;
+
+
+                        @foreach($customers as $customer)
+                            xValues.push("{{$customer->firstname}} {{$customer->lastname}}") ;
+                            barColors.push(getRandomColor()) ;
+                            if(resp.pieDatas["{{$customer->id}}"] === "undefined"){
+                                yValues.push(0) ;
+                            } else {
+                                yValues.push(resp.pieDatas["{{$customer->id}}"]) ;
+                            }
+
+                            $("#customer_analysis").append('<div class="row">') ;
+                            $("#customer_analysis").append('{{$customer->firstname}} {{$customer->lastname}}' + " : ") ;
+                            $("#customer_analysis").append(( typeof resp.pieDatas["{{$customer->id}}"] === "undefined" ? "0" : resp.pieDatas["{{$customer->id}}"] ) + " % ( " + ( ( typeof resp.customer_pay["{{$customer->id}}"] == 'undefined' ? 0 : resp.customer_pay["{{$customer->id}}"] ) ) + " USD )") ;
+                            $("#customer_analysis").append('</div>') ;
+                        @endforeach
+
+                        new Chart("customerChart", {
+                            type: "pie",
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    backgroundColor: barColors,
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    fontSize: 20,
+                                    text: "Money Log analysis with customers"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            drawCustomerPieChart();
+
+            
+            function drawProjectPieChart () {
+                $.ajax({
+                    method : "POST" ,
+                    url : "{{url('moneylog/project_analysis')}}" ,
+                    data : {
+                    },
+                    success : function (resp) {
+                        var xValues = [];
+                        var barColors = [] ;
+                        var yValues = [] ;
+
+                        console.log(resp);
+
+                        
+                        $("#project_analysis").html('') ;
+
+
+                        @foreach($projects as $project)
+                            @if($project->name != 'No Project.') 
+                                xValues.push("{{$project->name}}") ;
+                                barColors.push(getRandomColor()) ;
+                                if(resp.pieDatas["{{$project->id}}"] === "undefined"){
+                                    yValues.push(0) ;
+                                } else {
+                                    yValues.push(resp.pieDatas["{{$project->id}}"]) ;
+                                }
+
+                                $("#project_analysis").append('<div class="row">') ;
+                                $("#project_analysis").append('{{$project->name}}' + " : ") ;
+                                $("#project_analysis").append(( typeof resp.pieDatas["{{$project->id}}"] === "undefined" ? "0" : resp.pieDatas["{{$project->id}}"] ) + " % ( " + ( ( typeof resp.project_pay["{{$project->id}}"] == 'undefined' ? 0 : resp.project_pay["{{$project->id}}"] ) ) + " USD )") ;
+                                $("#project_analysis").append('</div>') ;
+                            @endif
+                        @endforeach
+
+                        new Chart("projectChart", {
+                            type: "pie",
+                            data: {
+                                labels: xValues,
+                                datasets: [{
+                                    backgroundColor: barColors,
+                                    data: yValues
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    fontSize: 20,
+                                    text: "Money Log analysis with projects"
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            drawProjectPieChart();
 
             var table =  $('#empTable').DataTable({
                 'processing': true,

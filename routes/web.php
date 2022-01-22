@@ -76,6 +76,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     //admin moneylog
     Route::get('moneylog', ['as' => 'moneylogs.index', 'uses' => 'App\Http\Controllers\MoneyLogController@index']);
+    Route::get('moneylog/customers', ['as' => 'moneylogs.customers', 'uses' => 'App\Http\Controllers\MoneyLogController@moneybycustomers']);
+    Route::get('moneylog/projects', ['as' => 'moneylogs.projects', 'uses' => 'App\Http\Controllers\MoneyLogController@moneybyprojects']);
     Route::post('moneylog', ['as' => 'moneylogs.store', 'uses' => 'App\Http\Controllers\MoneyLogController@store']);
     Route::put('moneylog/{id}', ['as' => 'moneylogs.update', 'uses' => 'App\Http\Controllers\MoneyLogController@update']);
     Route::post('moneylogdetail', ['as' => 'moneylogs.detail', 'uses' => 'App\Http\Controllers\MoneyLogController@getDetail']);

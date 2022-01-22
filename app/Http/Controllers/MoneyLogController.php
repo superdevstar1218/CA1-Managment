@@ -25,6 +25,21 @@ class MoneyLogController extends Controller
         return view('pages.moneylogs', compact('moneylogs', 'projects', 'customers'));
     }
 
+    public function moneybycustomers()
+    {
+        $moneylogs = MoneyLog::all();
+        $projects = Project::all();
+        $customers = Customer::all();
+        return view('pages.moneylogscustom', compact('moneylogs', 'projects', 'customers'));
+    }
+
+    public function moneybyprojects()
+    {
+        $moneylogs = MoneyLog::all();
+        $projects = Project::all();
+        $customers = Customer::all();
+        return view('pages.moneylogsproject', compact('moneylogs', 'projects', 'customers'));
+    }
     /**
      * Show the form for creating a new resource.
      *
