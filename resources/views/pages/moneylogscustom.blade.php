@@ -38,14 +38,6 @@
                                 <button id="customer-toggle" class="btn btn-primary btn-sm">Select All</button>
                             </div>
                             <div class="col-sm-12 col-md-6">
-                                <a class="nav-link" href="{{ route('moneylogs.customers')  }}">
-                                    <button id="money-log-customers" class="btn btn-primary btn-sm">Customers</button>    
-                                </a>
-                                <a class="nav-link" href="{{ route('moneylogs.projects')  }}">
-                                    <button id="money-log-projects" class="btn btn-primary btn-sm">Projects</button>    
-                                </a>
-                            </div>
-                            <div class="col-sm-12 col-md-6">
                                 <label for="start">&nbsp;Project:</label>
                                 <select id="project" multiple="multiple">
                                     @foreach ($projects as $project)
@@ -56,10 +48,10 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12">
-                                <canvas id="moneylogChart" style="width:100%;"></canvas>
+                            <div class="col-6">
+                                <canvas id="customerChart" style="width:100%;"></canvas>
                             </div>
-                            <div class="col-6 d-flex flex-column justify-content-center" id="moneylog_analysis">
+                            <div class="col-6 d-flex flex-column justify-content-center" id="customer_analysis">
 
                             </div>
                         </div>
@@ -468,51 +460,47 @@
                 table.ajax.reload();
             });
 
-            $("#money-log-customers").click(function(e) {
-                e.preventDefault();
-                window.location.href = "/moneylog/customer";
-            });
-            $(".edit-data").click(function(event){
-                event.preventDefault();
+            // $(".edit-data").click(function(event){
+            //     event.preventDefault();
 
-                let id = $("#edit_id").val();
-                let customer = $("#edit_customer").val();
-                let currency = $("#edit_currency").val();
-                let amount = $("#edit_amount").val();
-                let fee = $("#edit_fee").val();
-                let real_pay = $("#edit_real_pay").val();
-                let project = $("#edit_project").val();
-                let received_date = $("#edit_received_date").val();
-                let comment = $("#edit_comment").val();
-                let _token   = $('meta[name="csrf-token"]').attr('content');
-                $.ajax({
-                    url: "/moneylog/" + id,
-                    type:"PUT",
-                    data:{
-                        customer: customer,
-                        currency: currency,
-                        amount : amount ,
-                        fee : fee,
-                        real_pay : real_pay,
-                        project : project,
-                        received_date: received_date,
-                        comment : comment,
-                        _token: _token
-                    },
-                    success:function(response){
-                        if(response) {
-                            if(response.result){
-                                $('.success').text(response.success);
-                                $('.error').hide();
-                                window.location.reload();
-                            } else {
-                                $('.error').text(response.errors);
-                                $('.success').hide();
-                            }
-                        }
-                    },
-                });
-            });
+            //     let id = $("#edit_id").val();
+            //     let customer = $("#edit_customer").val();
+            //     let currency = $("#edit_currency").val();
+            //     let amount = $("#edit_amount").val();
+            //     let fee = $("#edit_fee").val();
+            //     let real_pay = $("#edit_real_pay").val();
+            //     let project = $("#edit_project").val();
+            //     let received_date = $("#edit_received_date").val();
+            //     let comment = $("#edit_comment").val();
+            //     let _token   = $('meta[name="csrf-token"]').attr('content');
+            //     $.ajax({
+            //         url: "/moneylog/" + id,
+            //         type:"PUT",
+            //         data:{
+            //             customer: customer,
+            //             currency: currency,
+            //             amount : amount ,
+            //             fee : fee,
+            //             real_pay : real_pay,
+            //             project : project,
+            //             received_date: received_date,
+            //             comment : comment,
+            //             _token: _token
+            //         },
+            //         success:function(response){
+            //             if(response) {
+            //                 if(response.result){
+            //                     $('.success').text(response.success);
+            //                     $('.error').hide();
+            //                     window.location.reload();
+            //                 } else {
+            //                     $('.error').text(response.errors);
+            //                     $('.success').hide();
+            //                 }
+            //             }
+            //         },
+            //     });
+            // });
             $(".save-data").click(function(event){
                 event.preventDefault();
 
@@ -559,14 +547,11 @@
                 }
             });
 
-            function drawMoneyLogPieChart () {
+            function drawCustomerPieChart () {
                 $.ajax({
                     method : "POST" ,
-                    url : "{{url('moneylog/analysis')}}" ,
+                    url : "{{url('moneylog/customer_analysis')}}" ,
                     data : {
-                        date_start : $("#date_start").val(),
-                        date_end : $("#date_end").val()
-                    
                     },
                     success : function (resp) {
                         var xValues = [];
@@ -576,21 +561,30 @@
                         console.log(resp);
 
                         
-                        $("#moneylog_analysis").html('') ;
+                        $("#customer_analysis").html('') ;
 
 
-                        for(let i = 0; i < resp.analysis_moneylogs.length ; i ++) {
-                            xValues.push(resp.analysis_moneylogs[i].received_date) ;
-                            yValues.push(resp.analysis_moneylogs[i].real_pay) ;
-                        }
+                        @foreach($customers as $customer)
+                            xValues.push("{{$customer->firstname}} {{$customer->lastname}}") ;
+                            barColors.push(getRandomColor()) ;
+                            if(resp.pieDatas["{{$customer->id}}"] === "undefined"){
+                                yValues.push(0) ;
+                            } else {
+                                yValues.push(resp.pieDatas["{{$customer->id}}"]) ;
+                            }
 
-                        new Chart("moneylogChart", {
-                            type: "line",
+                            $("#customer_analysis").append('<div class="row">') ;
+                            $("#customer_analysis").append('{{$customer->firstname}} {{$customer->lastname}}' + " : ") ;
+                            $("#customer_analysis").append(( typeof resp.pieDatas["{{$customer->id}}"] === "undefined" ? "0" : resp.pieDatas["{{$customer->id}}"] ) + " % ( " + ( ( typeof resp.customer_pay["{{$customer->id}}"] == 'undefined' ? 0 : resp.customer_pay["{{$customer->id}}"] ) ) + " USD )") ;
+                            $("#customer_analysis").append('</div>') ;
+                        @endforeach
+
+                        new Chart("customerChart", {
+                            type: "pie",
                             data: {
                                 labels: xValues,
                                 datasets: [{
-                                    borderColor: '#ff0000',
-                                    backgroundColor: '#ffffff',
+                                    backgroundColor: barColors,
                                     data: yValues
                                 }]
                             },
@@ -598,7 +592,7 @@
                                 title: {
                                     display: true,
                                     fontSize: 20,
-                                    text: "Money Log analysis with Date"
+                                    text: "Money Log analysis with customers"
                                 }
                             }
                         });
@@ -606,7 +600,7 @@
                 });
             }
 
-            drawMoneyLogPieChart();
+            drawCustomerPieChart();
 
             var table =  $('#empTable').DataTable({
                 'processing': true,

@@ -84,9 +84,14 @@ Route::group(['middleware' => 'auth'], function () {
 
     //admin moneylog
     Route::get('moneylog', ['as' => 'moneylogs.index', 'uses' => 'App\Http\Controllers\MoneyLogController@index']);
+    Route::get('moneylog/customers', ['as' => 'moneylogs.customers', 'uses' => 'App\Http\Controllers\MoneyLogController@moneybycustomers']);
+    Route::get('moneylog/projects', ['as' => 'moneylogs.projects', 'uses' => 'App\Http\Controllers\MoneyLogController@moneybyprojects']);
     Route::post('moneylog', ['as' => 'moneylogs.store', 'uses' => 'App\Http\Controllers\MoneyLogController@store']);
     Route::put('moneylog/{id}', ['as' => 'moneylogs.update', 'uses' => 'App\Http\Controllers\MoneyLogController@update']);
     Route::post('moneylogdetail', ['as' => 'moneylogs.detail', 'uses' => 'App\Http\Controllers\MoneyLogController@getDetail']);
+    Route::post('moneylog/customer_analysis', ['as' => 'moneylogs.customer_analysis', 'uses' => 'App\Http\Controllers\MoneyLogController@customer_analysis']);
+    Route::post('moneylog/project_analysis', ['as' => 'moneylogs.project_analysis', 'uses' => 'App\Http\Controllers\MoneyLogController@project_analysis']);
+    Route::post('moneylog/analysis', ['as' => 'moneylogs.analysis', 'uses' => 'App\Http\Controllers\MoneyLogController@analysis']);
 
     //admin customer
     Route::get('customer', ['as' => 'customers.index', 'uses' => 'App\Http\Controllers\CustomerController@index']);
