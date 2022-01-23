@@ -76,7 +76,9 @@ class StatusController extends Controller
 
         $registry = Registry::whereBetween('start' , [$first_date , $last_date ])->where('user_id' , "=" ,$id)->orderBy('end' , 'desc')->get()->first() ;
 
-        $this->setMax($registry->end) ;
+        if(isset($registry)){
+            $this->setMax($registry->end) ;
+        }
 
 //        var_dump($this->getMax());
 

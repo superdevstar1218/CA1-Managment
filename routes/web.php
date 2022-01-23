@@ -54,11 +54,19 @@ Route::group(['middleware' => 'auth'], function () {
 
     //subadmin myschedule
     Route::get('myschedule', ['as' => 'myschedule.index', 'uses' => 'App\Http\Controllers\MyScheduleController@index']);
-    Route::post('myschedule', ['as' => 'myschedule.getData', 'uses' => 'App\Http\Controllers\MyScheduleController@getData']);
-    Route::post('myschedule/getOne', ['as' => 'myschedule.getOne', 'uses' => 'App\Http\Controllers\MyScheduleController@getOne']);
-    Route::post('myschedule/saveOne', ['as' => 'myschedule.saveOne', 'uses' => 'App\Http\Controllers\MyScheduleController@saveOne']);
-    Route::post('myschedule/deleteOne', ['as' => 'myschedule.deleteOne', 'uses' => 'App\Http\Controllers\MyScheduleController@deleteOne']);
-    Route::post('myschedule/addOne', ['as' => 'myschedule.addOne', 'uses' => 'App\Http\Controllers\MyScheduleController@addOne']);
+
+    Route::post('myschedule/getDataYear', ['as' => 'myschedule.getDataYear', 'uses' => 'App\Http\Controllers\MyScheduleController@getDataYear']);
+    Route::post('myschedule/getOneYear', ['as' => 'myschedule.getOneYear', 'uses' => 'App\Http\Controllers\MyScheduleController@getOneYear']);
+    Route::post('myschedule/saveOneYear', ['as' => 'myschedule.saveOneYear', 'uses' => 'App\Http\Controllers\MyScheduleController@saveOneYear']);
+    Route::post('myschedule/deleteOneYear', ['as' => 'myschedule.deleteOneYear', 'uses' => 'App\Http\Controllers\MyScheduleController@deleteOneYear']);
+    Route::post('myschedule/addOneYear', ['as' => 'myschedule.addOneYear', 'uses' => 'App\Http\Controllers\MyScheduleController@addOneYear']);
+
+
+    Route::post('myschedule/getDataMonth', ['as' => 'myschedule.getDataMonth', 'uses' => 'App\Http\Controllers\MyScheduleController@getDataMonth']);
+    Route::post('myschedule/getOneMonth', ['as' => 'myschedule.getOneMonth', 'uses' => 'App\Http\Controllers\MyScheduleController@getOneMonth']);
+    Route::post('myschedule/saveOneMonth', ['as' => 'myschedule.saveOneMonth', 'uses' => 'App\Http\Controllers\MyScheduleController@saveOneMonth']);
+    Route::post('myschedule/deleteOneMonth', ['as' => 'myschedule.deleteOneMonth', 'uses' => 'App\Http\Controllers\MyScheduleController@deleteOneMonth']);
+    Route::post('myschedule/addOneMonth', ['as' => 'myschedule.addOneMonth', 'uses' => 'App\Http\Controllers\MyScheduleController@addOneMonth']);
 
     //subadmin mylogs
     Route::get('mylogs', ['as' => 'mylogs.index', 'uses' => 'App\Http\Controllers\MyLogsController@index']);

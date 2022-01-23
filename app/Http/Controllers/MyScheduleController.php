@@ -13,7 +13,7 @@ class MyScheduleController extends Controller
         return view('pages.myschedule') ;
     }
 
-    public function getData(Request $request) {
+    public function getDataYear(Request $request) {
 
         $edit_date = $request->post('editDate') ;
         $tabOption = $request->post('tabOption') ;
@@ -41,14 +41,14 @@ class MyScheduleController extends Controller
                     return $row->other ;
                 })
                 ->addColumn('action' , function($row){
-                    return "<button type='button' class='btn btn-sm btn-primary' onclick='editYearSchedule(".$row->id.")' data-toggle='modal' data-target='#editScheduleModal'>Edit</button>&nbsp;&nbsp;<button type='button' class='btn btn-sm btn-danger' onclick='deleteYearSchedule(".$row->id.")'>Delete</button>" ;
+                    return "<button type='button' class='btn btn-sm btn-primary' onclick='editYearSchedule(".$row->id.")' data-toggle='modal' data-target='#editYearScheduleModal'>Edit</button>&nbsp;&nbsp;<button type='button' class='btn btn-sm btn-danger' onclick='deleteYearSchedule(".$row->id.")'>Delete</button>" ;
                 })
                 ->rawColumns(['period' , 'content' , 'isdone' , 'other' , 'action'])
                 ->make(true);
         }
     }
 
-    public function getOne(Request $request){
+    public function getOneYear(Request $request){
         $id = $request->post('id') ;
 
         $data = YearSchedule::where("id" , "=" , $id)->get()->first() ;
@@ -61,7 +61,7 @@ class MyScheduleController extends Controller
         ]);
     }
 
-    public function saveOne(Request $request){
+    public function saveOneYear(Request $request){
         $jsonBody = $request->all() ;
 
         $data = YearSchedule::where("id" , "=" , $jsonBody['id'])->get()->first() ;
@@ -78,7 +78,7 @@ class MyScheduleController extends Controller
         ]);
     }
 
-    public function addOne(Request $request){
+    public function addOneYear(Request $request){
         $jsonBody = $request->all() ;
 
         $data = new YearSchedule ;
@@ -98,7 +98,7 @@ class MyScheduleController extends Controller
     }
 
 
-    public function deleteOne(Request $request) {
+    public function deleteOneYear(Request $request) {
         $id = $request->post('id') ;
 
         YearSchedule::where("id" , "=" , $id)->delete() ;
