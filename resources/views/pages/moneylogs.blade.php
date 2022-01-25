@@ -11,7 +11,6 @@
                         <h4 class="card-title ">Money Logs</h4>
                         <p class="card-category"> Here you can manage money logs</p>
                     </div>
-                    
                     <div class="card-body">
                         <div class="row">
                             <div class="col-sm-10 ">

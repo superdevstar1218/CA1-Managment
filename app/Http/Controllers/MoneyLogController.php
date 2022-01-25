@@ -18,7 +18,9 @@ class MoneyLogController extends Controller
      */
     public function index()
     {
-        //
+        // Query :: select sum(real_pay),id, received_date, customer_id from money_logs GROUP BY received_date
+        // $moneylog = MoneyLog::all();
+        // $moneylogs = MoneyLog::select('received_date')->selectRaw('sum(real_pay)')->groupBy('received_date')->get();
         $moneylogs = MoneyLog::all();
         $projects = Project::all();
         $customers = Customer::all();
@@ -228,11 +230,9 @@ class MoneyLogController extends Controller
     
     public function analysis(Request $request) {
 
-        $moneylog_pie_chart_data = [] ;
+        $moneylogs = MoneyLog::select('received_date')->selectRaw('sum(real_pay)')->groupBy('received_date')->get();
 
-        // $date_start = $request->post('date_start') ;
-        // $date_end = $request->post('date_end') ;
-        // $moneylogs = MoneyLog::whereBetween('received_date' , [$date_start, $date_end])->orderBy('received_date', 'ASC')->get();
+        $moneylog_pie_chart_data = [] ;
         $moneylogs = MoneyLog::orderBy('received_date', 'ASC')->get();
         return response()->json([
             'analysis_moneylogs' => $moneylogs ,

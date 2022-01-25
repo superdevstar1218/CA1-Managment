@@ -20,7 +20,7 @@ class CreateMoneyLogsTable extends Migration
             $table->string('currency');
             $table->string('amount')->default('0');
             $table->string('fee')->default('0');
-            $table->string('real_pay')->default('0');
+            $table->int('real_pay')->default('0');
             $table->integer('project_id');
             $table->string('comment');
             $table->timestamps();

@@ -50,7 +50,7 @@ class User extends Authenticatable
         return $this->hasMany(Registry::class) ;
     }
 
-    public function year_schedules() {
-        return $this->hasMany(YearSchedule::class) ;
+    public function schedules() {
+        return $this->hasMany(Schedule::class) ;
     }
 }

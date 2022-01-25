@@ -20,6 +20,7 @@
                                     </div>
                                     <input type="hidden" id="tabOption" value="1"/>
                                     <input type="date" id="editDate" value="{{date("Y-m-d")}}" min="{{substr(Auth::user()->created_at , 0 , 10)}}" max="{{date('Y-m-d')}}"/>
+                                    <button type="button" class="btn btn-primary btn-sm" data-toggle='modal' data-target='#addScheduleModal'>Add Schedule</button>
                                 </div>
                             </div>
                             <div class="card card-nav-tabs card-plain " style="margin-top: 100px;">
@@ -29,13 +30,16 @@
                                         <div class="nav-tabs-wrapper">
                                             <ul class="nav nav-tabs" data-tabs="tabs">
                                                 <li class="nav-item">
-                                                    <a class="nav-link active" href="#home" data-toggle="tab" onclick="setTabOption(1)">Year</a>
+                                                    <a class="nav-link active" href="#Year" data-toggle="tab" onclick="setTabOption(1)">Year</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#updates" data-toggle="tab" onclick="setTabOption(2)">Month</a>
+                                                    <a class="nav-link" href="#Month" data-toggle="tab" onclick="setTabOption(2)">Month</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#history" data-toggle="tab" onclick="setTabOption(3)">Day</a>
+                                                    <a class="nav-link" href="#Week" data-toggle="tab" onclick="setTabOption(3)">Week</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="#Day" data-toggle="tab" onclick="setTabOption(4)">Day</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -43,16 +47,10 @@
                                 </div>
                                 <div class="card-body ">
                                     <div class="tab-content text-center">
-                                        <div class="tab-pane active" id="home">
-                                            <div class="d-flex justify-content-end mb-5">
-                                                <button type="button" class="btn btn-primary btn-sm" data-toggle='modal' data-target='#addScheduleModal'>Add Schedule</button>
-                                            </div>
+                                        <div class="tab-pane active" id="Year">
                                             <table id="yearScheduleTable" class="display dataTable">
                                                 <thead>
                                                     <tr>
-                                                        <th>
-                                                            Period
-                                                        </th>
                                                         <th>
                                                             Content
                                                         </th>
@@ -60,7 +58,7 @@
                                                             IsDone
                                                         </th>
                                                         <th>
-                                                            Other
+                                                            Comment
                                                         </th>
                                                         <th>
                                                             Action
@@ -69,9 +67,65 @@
                                                 </thead>
                                             </table>
                                         </div>
-                                        <div class="tab-pane" id="updates">
+                                        <div class="tab-pane" id="Month">
+                                            <table id="monthScheduleTable" class="display dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Content
+                                                        </th>
+                                                        <th>
+                                                            IsDone
+                                                        </th>
+                                                        <th>
+                                                            Comment
+                                                        </th>
+                                                        <th>
+                                                            Action                                                                
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
                                         </div>
-                                        <div class="tab-pane" id="history">
+                                        <div class="tab-pane" id="Week">
+                                            <table id="weekScheduleTable" class="display dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Content
+                                                        </th>
+                                                        <th>
+                                                            Isdone
+                                                        </th>
+                                                        <th>
+                                                            Comment
+                                                        </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+
+                                        <div class="tab-pane" id="Day">
+                                            <table id="dayScheduleTable" class="display dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Content
+                                                        </th>
+                                                        <th>
+                                                            Isdone
+                                                        </th>
+                                                        <th>
+                                                            Comment
+                                                        </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -95,17 +149,6 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" value="" id="editYearId"/>
-                    <div class="form-group bmd-form-group">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    Period
-                                </div>
-                            </div>
-                            <input id="editYearPeriod" type="text" class="form-control" placeholder="....">
-                        </div>
-                    </div>
-
                     <div class="form-group bmd-form-group">
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -135,7 +178,7 @@
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                    Other
+                                    Comment
                                 </div>
                             </div>
                             <input class="form-control" id="editYearOther" />
@@ -164,10 +207,10 @@
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                    Period
+                                    Content
                                 </div>
                             </div>
-                            <input id="addYearPeriod" type="text" class="form-control" placeholder="....">
+                            <textarea class="form-control" id="Schedule_Content" rows="1"></textarea>
                         </div>
                     </div>
 
@@ -175,10 +218,15 @@
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                    Content
+                                    Schedule Type
                                 </div>
                             </div>
-                            <textarea class="form-control" id="addYearContent" rows="3"></textarea>
+                            <select class="form-control" id="Schedule_Type">
+                                <option value="0">Yearly Schedule</option>
+                                <option value="1">Monthly Schedule</option>
+                                <option value="2">Weekly Schedule</option>
+                                <option value="2">Daily Schedule</option>
+                            </select>
                         </div>
                     </div>
 
@@ -189,27 +237,26 @@
                                     IsDone
                                 </div>
                             </div>
-                            <select class="form-control" id="addYearIsDone">
+                            <select class="form-control" id="Schedule_IsDone">
                                 <option value="0">Not Done</option>
                                 <option value="1">Done</option>
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group bmd-form-group">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
-                                    Other
+                                    Comment
                                 </div>
                             </div>
-                            <input class="form-control" id="addYearOther" placeholder="....."/>
+                            <input class="form-control" id="Schedule_Comment" placeholder="....."/>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="onAddYearSchedule()">Add Schedule</button>
+                    <button type="button" class="btn btn-primary" onclick="onAddSchedule()">Add</button>
                 </div>
             </div>
         </div>
@@ -245,7 +292,6 @@
         function setTabOption(tabOption) {
             $("#tabOption").val(tabOption) ;
         }
-
         function deleteYearSchedule(id) {
             $.ajax({
                 method : "post" ,
@@ -278,16 +324,24 @@
                 }
             });
         }
-        function onAddYearSchedule() {
+        function convert(str) {
+            var date = new Date(str), mnth = ("0" + (date.getMonth() + 1)).slice(-2), day = ("0" + date.getDate()).slice(-2);
+            return [date.getFullYear(), mnth, day].join("-");
+        }
+
+        function onAddSchedule() {
+            let schedule_date = new Date($("#editDate").val());
+            let send_year = convert(schedule_date);
+            console.log(send_year);
             $.ajax({
                 method : "post" ,
                 url : "{{route('myschedule.addOne')}}" ,
                 data : {
-                    year : new Date( $("#editDate").val()).getFullYear() ,
-                    period : $("#addYearPeriod").val() ,
-                    content : $("#addYearContent").val() ,
-                    isdone : $("#addYearIsDone").val(),
-                    other : $("#addYearOther").val()
+                    year :  send_year,
+                    content : $("#Schedule_Content").val() ,
+                    type : $("#Schedule_Type").val() ,
+                    isdone : $("#Schedule_IsDone").val(),
+                    comment : $("#Schedule_Comment").val()
                 },
                 success : function (resp) {
                     if(resp.status == "success"){
@@ -313,10 +367,9 @@
                     },
                 },
                 'columns': [
-                    { data: 'period', name: 'period', searchable: true},
                     { data: 'content', name: 'content', searchable: true },
                     { data: 'isdone', name: 'isdone', searchable: true },
-                    { data: 'other', name: 'other', searchable: true },
+                    { data: 'comment', name: 'comment', searchable: true },
                     { data: 'action', name: 'action', searchable: true }
                 ],
                 'initComplete': function () {
