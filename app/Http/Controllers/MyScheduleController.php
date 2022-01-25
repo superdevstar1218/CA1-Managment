@@ -15,7 +15,7 @@ class MyScheduleController extends Controller
         return view('pages.myschedule') ;
     }
 
-    public function getData(Request $request) {
+    public function getDataYear(Request $request) {
 
         $edit_date = $request->post('editDate') ;
         $tabOption = $request->post('tabOption') ;
@@ -38,14 +38,14 @@ class MyScheduleController extends Controller
                     return $row->other ;
                 })
                 ->addColumn('action' , function($row){
-                    return "<button type='button' class='btn btn-sm btn-primary' onclick='editYearSchedule(".$row->id.")' data-toggle='modal' data-target='#editScheduleModal'>Edit</button>&nbsp;&nbsp;<button type='button' class='btn btn-sm btn-danger' onclick='deleteYearSchedule(".$row->id.")'>Delete</button>" ;
+                    return "<button type='button' class='btn btn-sm btn-primary' onclick='editYearSchedule(".$row->id.")' data-toggle='modal' data-target='#editYearScheduleModal'>Edit</button>&nbsp;&nbsp;<button type='button' class='btn btn-sm btn-danger' onclick='deleteYearSchedule(".$row->id.")'>Delete</button>" ;
                 })
                 ->rawColumns(['Content' , 'Isdone' , 'Comment' , 'Action'])
                 ->make(true);
         }
     }
 
-    public function getOne(Request $request){
+    public function getOneYear(Request $request){
         $id = $request->post('id') ;
 
         $data = Schedule::where("id" , "=" , $id)->get()->first() ;
@@ -58,7 +58,7 @@ class MyScheduleController extends Controller
         ]);
     }
 
-    public function saveOne(Request $request){
+    public function saveOneYear(Request $request){
         $jsonBody = $request->all() ;
 
         $data = Schedule::where("id" , "=" , $jsonBody['id'])->get()->first() ;
@@ -96,7 +96,7 @@ class MyScheduleController extends Controller
     }
 
 
-    public function deleteOne(Request $request) {
+    public function deleteOneYear(Request $request) {
         $id = $request->post('id') ;
 
         Schedule::where("id" , "=" , $id)->delete() ;
